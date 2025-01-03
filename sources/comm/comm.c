@@ -15,9 +15,6 @@ typedef struct	s_server_block
 {
 	char *listening_ip_address;
 	char *listening_port;
-	
-
-
 }				t_server_block;
 
 void ft_bomb_as_been_defused(char *msg)
