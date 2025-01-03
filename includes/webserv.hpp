@@ -11,9 +11,11 @@
 #include <sys/select.h>   // select
 #include <poll.h>         // poll
 #include <sys/epoll.h>    // epoll_create, epoll_ctl, epoll_wait
-#include <sys/event.h>    // kqueue, kevent
 #include <errno.h>        // errno
 #include <string.h>       // strerror
 #include <dirent.h>       // opendir, readdir, closedir
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #endif // MY_HEADER_HPP
