@@ -3,6 +3,7 @@
 
 #include <unistd.h>       // fork, execve, pipe, chdir, dup, dup2, close, read, write, access, stat
 #include <fcntl.h>        // open, fcntl
+#include <sys/wait.h>
 #include <sys/types.h>    // socket, accept, bind, listen, connect, waitpid, kill, opendir, readdir, closedir
 #include <sys/socket.h>   // socket, accept, bind, listen, connect, send, recv, socketpair, setsockopt, getsockname
 #include <netdb.h>        // getaddrinfo, freeaddrinfo, gai_strerror, getprotobyname
