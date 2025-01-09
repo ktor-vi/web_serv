@@ -75,11 +75,11 @@ WebServer::WebServer(Config &conf) {
         // if (server.root.empty() && location.root.empty())
         //   throw std::runtime_error("Error: no root directives.");
         if (server.root.empty()) {
-          if (!location.index_path.empty()) {
-            if (location.dir_default_path[0] == '/')
-              location.cgi_path = location.root + location.cgi_path;
+          if (!location.index.empty()) {
+            if (location.index[0] == '/')
+              location.index_path = location.root + location.index;
             else
-              location.cgi_path = location.root + "/" + location.cgi_path;
+              location.index_path = location.root + "/" + location.index;
           }
           if (!location.dir_default_path.empty()) {
             if (location.dir_default_path[0] == '/')
@@ -96,11 +96,11 @@ WebServer::WebServer(Config &conf) {
               location.cgi_path = location.root + "/" + location.cgi_path;
           }
         } else if (location.root.empty()) {
-          if (!location.index_path.empty()) {
-            if (location.dir_default_path[0] == '/')
-              location.cgi_path = server.root + location.cgi_path;
+          if (!location.index.empty()) {
+            if (location.index[0] == '/')
+              location.index_path = server.root + location.index;
             else
-              location.cgi_path = server.root + "/" + location.cgi_path;
+              location.index_path = server.root + "/" + location.index;
           }
           if (!location.dir_default_path.empty()) {
             if (location.dir_default_path[0] == '/')
@@ -127,10 +127,10 @@ WebServer::WebServer(Config &conf) {
 void WebServer::printServer() const {
   std::vector<Server>::const_iterator it;
   std::vector<Server>::const_iterator ite = servers.end();
-  int i = 1;
+  int i = 0;
   for (it = servers.begin(); it != ite; it++) {
 
-    std::cout << "Server : " << i << std::endl;
+    std::cout << "Server : " << ++i << std::endl;
     std::cout << "Port : " << it->listen << std::endl;
     std::cout << "Server Name : " << it->server_name << std::endl;
     (it->root.empty()) ? std::cout << "No server root" << std::endl
@@ -146,14 +146,14 @@ void WebServer::printServer() const {
     std::vector<Location> locations = it->locations;
     std::vector<Location>::iterator kt;
     std::vector<Location>::iterator kte = locations.end();
-    int k = 1;
+    int k = 0;
     std::cout << std::endl;
     for (kt = locations.begin(); kt != kte; kt++) {
-      std::cout << "Location : " << k << std::endl;
+      std::cout << "Location : " << ++k << ": [" << kt->path << "]" << std::endl;
       (kt->root.empty()) ? std::cout << "No location root" << std::endl
                          : std::cout << "Location root : "
                                      << "[" << kt->root << "]" << std::endl;
-      (kt->index_path.empty()) ? std::cout << "No index Path : " << std::endl
+      (kt->index_path.empty()) ? std::cout << "No index Path " << std::endl
                                : std::cout << "Index Path : "
                                            << "[" << kt->index_path << "]"
                                            << std::endl;
@@ -169,7 +169,7 @@ void WebServer::printServer() const {
       (kt->cgi_depends.first) ? std::cout << "CGI depends on"
                                           << "[" << kt->cgi_depends.second
                                           << "]" << std::endl
-                              : std::cout << "CGI off" << std::endl;
+                              : std::cout << "No CGI depends" << std::endl;
       std::vector<std::string>::iterator lt;
       std::vector<std::string>::iterator lte = kt->allowed_methods.end();
       std::cout << "Allowed Methods : ";
@@ -181,4 +181,9 @@ void WebServer::printServer() const {
     std::cout << std::endl;
   }
 }
+
+const std::vector<Server> &WebServer::getServers() const{
+return servers;
+}
+
 WebServer::~WebServer() {}
