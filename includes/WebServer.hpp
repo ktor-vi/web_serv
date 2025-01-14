@@ -9,7 +9,7 @@ private:
 public:
   WebServer(Config &conf);
   ~WebServer();
-  bool verifyServer() const;
+  void verifyServer() const;
   void printServer() const;
   const std::vector<Server> &getServers() const;
 };

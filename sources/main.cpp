@@ -6,6 +6,7 @@ int main() {
     // config.printConfig();
     WebServer web_serv(config);
     web_serv.printServer();
+    web_serv.verifyServer();
   } else {
     std::cerr << "Erreur lors du parsing du fichier de configuration."
               << std::endl;
