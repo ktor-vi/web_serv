@@ -5,13 +5,13 @@ int main()
 
 	if (config.parseFile("config.conf")) 
 	{
-    // config.printConfig();
-    WebServer web_serv(config);
-    web_serv.printServer();
+	// config.printConfig();
+	WebServer web_serv(config);
+	web_serv.printServer();
 	}
   	else {
 	std::cerr << "Erreur lors du parsing du fichier de configuration."
-              << std::endl;
+			  << std::endl;
   	}
 	printf("/////////////////// SERVER IS STARTING....\n");
 	ft_webserver();

@@ -2,10 +2,10 @@
 #define MY_HEADER_HPP
 
 #include <arpa/inet.h> // htons, htonl, ntohs, ntohl
-#include <cstdlib>     // pour std::atoi
-#include <dirent.h>    // opendir, readdir, closedir
-#include <errno.h>     // errno
-#include <fcntl.h>     // open, fcntl
+#include <cstdlib>	 // pour std::atoi
+#include <dirent.h>	// opendir, readdir, closedir
+#include <errno.h>	 // errno
+#include <fcntl.h>	 // open, fcntl
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -24,8 +24,9 @@
 #include <sys/epoll.h>
 
 // SOCKET PART
-void ft_webserver(void); // execute a socket on a specific address/port
-void	ft_setup_socket(int *server_fd, int port);
+void	ft_webserver(void); // start servers on specified port. 
+void	ft_setup_socket(int *server_fd, int port); // setup server socket and add it to the poll event handler
+void	make_socket_nonblocking(int sockfd); // litteral
 
 // CGI PART
 char *ft_call_cgi(char *ans);
