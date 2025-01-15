@@ -219,6 +219,13 @@ void WebServer::printServer() const {
     std::cout << std::endl;
   }
 }
+void WebServer::setSocketFd(int index, int socket_fd) {
+  this->servers[index].socket_fd = socket_fd;
+}
+
+int WebServer::getSocketFd(int index) { return this->servers[index].socket_fd; }
+int WebServer::getPort(int index) { return this->servers[index].listen; }
+int WebServer::getNumberOfServers() { return this->servers.size(); }
 
 const std::vector<Server> &WebServer::getServers() const { return servers; }
 

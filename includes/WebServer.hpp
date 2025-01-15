@@ -11,5 +11,9 @@ public:
   ~WebServer();
   void verifyServer() const;
   void printServer() const;
+  void setSocketFd(int index, int socket_fd);
+  int getSocketFd(int index);
+  int getPort(int index);
+  int getNumberOfServers();
   const std::vector<Server> &getServers() const;
 };
