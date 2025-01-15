@@ -21,8 +21,18 @@
 #include <unistd.h> // fork, execve, pipe, chdir, dup, dup2, close, read, write, access, stat
 #include <vector>
 #include <sys/wait.h>
+#include <sys/epoll.h>
 
+// SOCKET PART
 void ft_webserver(void); // execute a socket on a specific address/port
+void	ft_setup_socket(int *server_fd, int port);
+
+// CGI PART
+char *ft_call_cgi(char *ans);
+
+// HTTP PART
+int handle_request(int client_fd);
+void send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
 
 struct LocationBlock {
   std::string path;
