@@ -4,7 +4,7 @@ Config::~Config() {}
 bool Config::parseFile(const std::string &fileName) {
   std::ifstream configFile(fileName.c_str());
   if (!configFile) {
-    std::cerr << "Erreur : Impossible d'ouvrir le fichier." << std::endl;
+    std::cerr << "Error: can't open file." << std::endl;
     return false;
   }
 
@@ -33,22 +33,20 @@ bool Config::parseFile(const std::string &fileName) {
 
           size_t pos = line.find(" ");
           if (pos == std::string::npos) {
-            throw std::runtime_error(
-                "Chemin de location manquant ou syntaxe invalide.");
+            throw std::runtime_error("Invalid/missing path or bad syntax.");
           }
 
           currentLocation.path = trim(line.substr(pos, line.find("{") - pos));
           if (currentLocation.path.empty()) {
-            throw std::runtime_error("Chemin de location manquant.");
+            throw std::runtime_error("Path empty.");
           }
         } else {
-          throw std::runtime_error("Type de bloc inconnu.");
+          throw std::runtime_error("Unknown block type.");
         }
       } else if (line.find("}") != std::string::npos) {
         // Fin d'un bloc
         if (blockStack.empty()) {
-          throw std::runtime_error(
-              "Bloc fermant sans bloc ouvrant correspondant.");
+          throw std::runtime_error("Closing block without opening block.");
         }
 
         std::string blockType = blockStack.top();
@@ -66,18 +64,18 @@ bool Config::parseFile(const std::string &fileName) {
         // Directive clé-valeur
         size_t pos = line.find(";");
         if (pos == std::string::npos) {
-          throw std::runtime_error("Directive mal formée (manque ';').");
+          throw std::runtime_error("Bad directive (missing ';').");
         }
 
         std::string directive = line.substr(0, pos);
-        size_t spacePos = directive.find(" ");
-        if (spacePos == std::string::npos) {
-          throw std::runtime_error(
-              "Directive mal formée (clé ou valeur manquante).");
-        }
+        size_t spacePos = directive.find_first_not_of(" ");
+        size_t keyEnd = directive.find_first_of(" ", spacePos);
+        std::string key = trim(directive.substr(0, keyEnd));
+        std::string value = trim(directive.substr(keyEnd));
 
-        std::string key = trim(directive.substr(0, spacePos));
-        std::string value = trim(directive.substr(spacePos + 1));
+        if (spacePos == std::string::npos) {
+          throw std::runtime_error("Bad directive (missing key or value).");
+        }
 
         if (inLocationBlock) {
           currentLocation.directives[key] = value;
@@ -92,15 +90,14 @@ bool Config::parseFile(const std::string &fileName) {
         }
       }
     } catch (const std::runtime_error &e) {
-      std::cerr << "Erreur à la ligne " << lineNumber << ": " << e.what()
-                << "\n";
+      std::cerr << "Error on line " << lineNumber << ": " << e.what() << "\n";
       return false;
     }
   }
 
   // Vérification : blocs non fermés
   if (!blockStack.empty()) {
-    std::cerr << "Erreur : Bloc non fermé à la fin du fichier.\n";
+    std::cerr << "Error : Block not closed.\n";
     return false;
   }
 

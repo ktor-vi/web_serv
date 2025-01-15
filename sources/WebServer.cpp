@@ -61,21 +61,21 @@ WebServer::WebServer(Config &conf) {
               (!lt->second.empty() || lt->second == "off") ? true : false;
           location.cgi_depends.second = lt->second;
         } else if (lt->first == "allowed_methods") {
-          if (lt->second.find("GET"))
-            location.allowed_methods.push_back("GET");
-          if (lt->second.find("POST"))
-            location.allowed_methods.push_back("POST");
-          if (lt->second.find("DELETE"))
-            location.allowed_methods.push_back("DELETE");
-          if (!lt->second.find("DELETE") && !lt->second.find("GET") &&
-              !lt->second.find("POST"))
-            throw std::runtime_error(
-                "Error: unknown or not supported HTTP method");
+          std::cout << lt->second << std::endl;
+          std::istringstream iss(lt->second);
+          std::string method;
+          while (iss >> method) {
+            if (method == "GET" || method == "POST" || method == "DELETE") {
+              location.allowed_methods.push_back(method);
+            } else {
+              throw std::runtime_error(
+                  "Error: unknown or unsupported HTTP method '" + method + "'");
+            }
+          }
         } else {
           throw std::runtime_error("Error: unknown location directive.");
         }
       }
-      std::cout << location.index;
       if (server.root.empty() && location.root.empty())
         throw std::runtime_error("Error: no root directives.");
       if (server.root.empty()) {
@@ -219,13 +219,99 @@ void WebServer::printServer() const {
     std::cout << std::endl;
   }
 }
+
 void WebServer::setSocketFd(int index, int socket_fd) {
   this->servers[index].socket_fd = socket_fd;
 }
 
 int WebServer::getSocketFd(int index) { return this->servers[index].socket_fd; }
+
 int WebServer::getPort(int index) { return this->servers[index].listen; }
+
 int WebServer::getNumberOfServers() { return this->servers.size(); }
+
+std::string WebServer::getServerName(int index) {
+  return this->servers[index].server_name;
+}
+
+std::string WebServer::getErrorPagePath(int index, int error_code) {
+  std::map<int, std::string>::const_iterator jt;
+  std::map<int, std::string>::const_iterator jte =
+      this->servers[index].error_pages.end();
+  for (jt = this->servers[index].error_pages.begin(); jt != jte; jt++) {
+    if (jt->first == error_code)
+      return jt->second;
+  }
+  return NULL;
+}
+
+std::string WebServer::getIndexPath(int index, std::string location_path) {
+  std::vector<Location> locations = this->servers[index].locations;
+  std::vector<Location>::iterator kt;
+  std::vector<Location>::iterator kte = locations.end();
+  for (kt = locations.begin(); kt != kte; kt++) {
+    if (kt->path == location_path)
+      return kt->index_path;
+  }
+  return NULL;
+}
+
+std::string WebServer::getDirDefaultPath(int index, std::string location_path) {
+  std::vector<Location> locations = this->servers[index].locations;
+  std::vector<Location>::iterator kt;
+  std::vector<Location>::iterator kte = locations.end();
+  for (kt = locations.begin(); kt != kte; kt++) {
+    if (kt->path == location_path)
+      return kt->dir_default_path;
+  }
+  return NULL;
+}
+
+std::pair<bool, std::string>
+WebServer::getCGIDepends(int index, std::string location_path) {
+  std::vector<Location> locations = this->servers[index].locations;
+  std::vector<Location>::iterator kt;
+  std::vector<Location>::iterator kte = locations.end();
+  for (kt = locations.begin(); kt != kte; kt++) {
+    if (kt->path == location_path)
+      return kt->cgi_depends;
+  }
+  return std::pair<bool, std::string>();
+}
+
+std::string WebServer::getCGIPath(int index, std::string location_path) {
+  std::vector<Location> locations = this->servers[index].locations;
+  std::vector<Location>::iterator kt;
+  std::vector<Location>::iterator kte = locations.end();
+  for (kt = locations.begin(); kt != kte; kt++) {
+    if (kt->path == location_path)
+      return kt->cgi_path;
+  }
+  return NULL;
+}
+
+bool WebServer::getCGIStatus(int index, std::string location_path) {
+  std::vector<Location> locations = this->servers[index].locations;
+  std::vector<Location>::iterator kt;
+  std::vector<Location>::iterator kte = locations.end();
+  for (kt = locations.begin(); kt != kte; kt++) {
+    if (kt->path == location_path)
+      return kt->cgi;
+  }
+  return false;
+}
+
+std::vector<std::string>
+WebServer::getAllowedMethods(int index, std::string location_path) {
+  std::vector<Location> locations = this->servers[index].locations;
+  std::vector<Location>::iterator kt;
+  std::vector<Location>::iterator kte = locations.end();
+  for (kt = locations.begin(); kt != kte; kt++) {
+    if (kt->path == location_path)
+      return kt->allowed_methods;
+  }
+  return std::vector<std::string>();
+}
 
 const std::vector<Server> &WebServer::getServers() const { return servers; }
 
