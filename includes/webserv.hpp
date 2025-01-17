@@ -15,13 +15,14 @@
 #include <stack>
 #include <string.h> // strerror
 #include <string>
-#include <sys/select.h> // select
 #include <sys/socket.h> // socket, accept, bind, listen, connect, send, recv, socketpair, setsockopt, getsockname
 #include <sys/types.h> // socket, accept, bind, listen, connect, waitpid, kill, opendir, readdir, closedir
 #include <unistd.h> // fork, execve, pipe, chdir, dup, dup2, close, read, write, access, stat
 #include <vector>
 #include <sys/wait.h>
 #include <sys/epoll.h>
+
+#define MAX_EVENTS 10
 
 // SOCKET PART
 void	ft_webserver(void); // start servers on specified port. 

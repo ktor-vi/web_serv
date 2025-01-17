@@ -29,6 +29,7 @@ char *ft_call_cgi(char *ans)
 	const char	*python = "python3";
 	char *const	argv[] = { (char *)python, (char *)script_path, NULL }; // Format for execve
 
+	usleep(100000);
 	pipe(fds);
 	if (fork() == 0)
 	{
@@ -66,10 +67,9 @@ void	ft_setup_socket(int *server_fd, int port, int epoll_fd, struct epoll_event 
 	ptr->events = EPOLLIN;
 	ptr->data.fd = *server_fd;
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, *server_fd, ptr) == -1)
-		perror("EPOLL_CTL ERROR");
+		perror("EPOLL_CTL ERROR"), exit(1);
 	printf("SERVER ON 127.0.0.1:%d IS ONLINE\n", port);
 }
-#define MAX_EVENTS 10
 
 void ft_webserver(void) 
 {
@@ -103,16 +103,15 @@ void ft_webserver(void)
 					perror("ACCEPT ERROR");
 					continue;
 				}
-				// Ajout de la socket client à epoll
 				t_event.data.fd = client_fd;
-				if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &t_event) == -1)
+				if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &t_event) == -1) // Rajoud du fd client dans la pool
 				{
 					perror("EPOLL_CTL ADD CLIENT ERROR");
 					close(client_fd);
 					continue;
 				}
 			}
-			else
+			else // sinon c'est une connexion deja accordee, a lire et repondre
 			{
 				client_fd = t_events[i].data.fd;
 				request_status = handle_request(client_fd);
@@ -121,7 +120,7 @@ void ft_webserver(void)
 					close(server_fd);
 					close(server_fd2);
 					close(client_fd);
-					exit(1);
+					perror("Server closed properly"), exit(0);
 				}
 				if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL) == -1)
 				{

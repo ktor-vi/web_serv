@@ -3,7 +3,7 @@ EXECUTABLE = web_serv.exe
 
 # Compilateur et options
 COMPILATOR = c++
-FLAGS = -Wall -Wextra -std=c++98 #-Werror -Ofast -funrill-loops
+FLAGS = -Wall -Wextra -g -std=c++98 #-Werror -Ofast -funroll-loops
 
 # Répertoires
 SRC_DIR = sources

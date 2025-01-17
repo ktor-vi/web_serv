@@ -13,7 +13,7 @@ int main()
 	std::cerr << "Erreur lors du parsing du fichier de configuration."
 			  << std::endl;
   	}
-	printf("/////////////////// SERVER IS STARTING....\n");
+	std::cout << ("/////////////////// SERVER IS STARTING....\n");
 	ft_webserver();
 	return 0;
 }
