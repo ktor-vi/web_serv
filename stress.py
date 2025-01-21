@@ -21,7 +21,7 @@ def send_requests(thread_id):
                 # Optionnel : décommenter pour afficher la réponse
                 # print(f"Thread {thread_id} - Réponse : {response.decode('utf-8')}")
         except Exception as e:
-            print(f"Thread {thread_id} - Erreur : {e}")
+            print(f"Thread {thread_id} - Error : {e}")
 
 # Test principal
 def main():
