@@ -282,6 +282,25 @@ std::string WebServer::getErrorPagePath(int port, int error_code) {
     return NULL;
   }
 
+  std::string WebServer::getRootPath(int port, std::string location_path) {
+    int index = 0;
+    std::vector<Server>::const_iterator it;
+    std::vector<Server>::const_iterator ite = servers.end();
+    for (it = servers.begin(); it != ite; it++) {
+      if(port == it->listen)
+        break;
+      index++;
+    }
+    std::vector<Location> locations = this->servers[index].locations;
+    std::vector<Location>::iterator kt;
+    std::vector<Location>::iterator kte = locations.end();
+    for (kt = locations.begin(); kt != kte; kt++) {
+      if (kt->path == location_path)
+        return kt->root;
+    }
+    return NULL;
+  }
+
   std::string WebServer::getDirDefaultPath(int port, std::string location_path) {
     int index = 0;
     std::vector<Server>::const_iterator it;
