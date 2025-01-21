@@ -48,7 +48,6 @@ void ft_setup_all_socket(WebServer &data, int epoll_fd, struct epoll_event *ptr)
 
 	while (++i != index_max)
 	{
-		printf("PORT server%d == %d\n", i, data.getPort(i));
 		ft_setup_socket(&socket_fd, data.getPort(i), epoll_fd, ptr);
 		data.setSocketFd(i, socket_fd);
 	}

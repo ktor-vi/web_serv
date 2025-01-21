@@ -1,13 +1,13 @@
 #include "../includes/webserv.hpp"
 
 void handle_sigint(int sig) {
-    printf("\nSignal SIGINT reçu (Ctrl-C) !\n");
+	(void)sig;
     exit(0);
 }
 
 void handle_eof(int sig) {
-    printf("\nSignal EOF (Ctrl-D) reçu !\n");
-    exit(0);
+	(void)sig;
+	exit(0);
 }
 
 int main()
