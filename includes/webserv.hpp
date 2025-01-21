@@ -1,19 +1,45 @@
 #ifndef MY_HEADER_HPP
 #define MY_HEADER_HPP
 
-#include <unistd.h>       // fork, execve, pipe, chdir, dup, dup2, close, read, write, access, stat
-#include <fcntl.h>        // open, fcntl
-#include <sys/types.h>    // socket, accept, bind, listen, connect, waitpid, kill, opendir, readdir, closedir
-#include <sys/socket.h>   // socket, accept, bind, listen, connect, send, recv, socketpair, setsockopt, getsockname
-#include <netdb.h>        // getaddrinfo, freeaddrinfo, gai_strerror, getprotobyname
-#include <arpa/inet.h>    // htons, htonl, ntohs, ntohl
-#include <signal.h>       // signal, kill
-#include <sys/select.h>   // select
-#include <poll.h>         // poll
-#include <sys/epoll.h>    // epoll_create, epoll_ctl, epoll_wait
-#include <sys/event.h>    // kqueue, kevent
-#include <errno.h>        // errno
-#include <string.h>       // strerror
-#include <dirent.h>       // opendir, readdir, closedir
+#include <arpa/inet.h> // htons, htonl, ntohs, ntohl
+#include <cstdlib>	 // pour std::atoi
+#include <dirent.h>	// opendir, readdir, closedir
+#include <errno.h>	 // errno
+#include <fcntl.h>	 // open, fcntl
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <netdb.h>  // getaddrinfo, freeaddrinfo, gai_strerror, getprotobyname
+#include <signal.h> // signal, kill
+#include <stack>
+#include <string.h> // strerror
+#include <string>
+#include <sys/socket.h> // socket, accept, bind, listen, connect, send, recv, socketpair, setsockopt, getsockname
+#include <sys/types.h> // socket, accept, bind, listen, connect, waitpid, kill, opendir, readdir, closedir
+#include <unistd.h> // fork, execve, pipe, chdir, dup, dup2, close, read, write, access, stat
+#include <vector>
+#include <sys/wait.h>
+#include <sys/epoll.h>
+#include <sstream>
 
-#endif // MY_HEADER_HPP
+#include "struct.hpp"
+#include "Config.hpp"
+#include "WebServer.hpp"
+
+class WebServer;
+
+// SOCKET PART
+void	ft_webserver(WebServer &data);
+bool	ft_isit_fdsocket(WebServer &data, int socket_fd);
+void	ft_setup_socket(int *server_fd, int port, int epoll_fd, struct epoll_event *ptr);
+void	ft_setup_all_socket(WebServer &data, int epoll_fd, struct epoll_event *ptr);
+void	make_socket_nonblocking(int sockfd); // litteral
+
+// CGI PART
+char *ft_call_cgi(char *ans);
+
+// HTTP PART
+int handle_request(int client_fd);
+void send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
+
+#endif

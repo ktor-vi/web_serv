@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Nombre Aléatoire</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			text-align: center;
+			margin-top: 50px;
+		}
+		button {
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+			margin: 10px;
+		}
+		#result {
+			margin-top: 20px;
+			font-size: 24px;
+			font-weight: bold;
+		}
+	</style>
+</head>
+<body>
+	<h1>JE SUIS FACEBOOK UWU</h1>
+	<button id="randomButton">Obtenir un nombre</button>
+	<button id="shutdownButton" style="background-color: red; color: white;">Arrêter le serveur</button>
+	<div id="result"></div>
+
+	<script>
+		// Bouton pour obtenir un nombre aléatoire
+		document.getElementById("randomButton").addEventListener("click", function () {
+			fetch("/random")
+				.then(response => response.text())
+				.then(data => {
+					document.getElementById("result").textContent = `Nombre : ${data}`;
+				})
+				.catch(error => {
+					document.getElementById("result").textContent = "Erreur lors de la récupération du nombre.";
+					console.error("Erreur :", error);
+				});
+		});
+
+		// Bouton pour arrêter le serveur
+		document.getElementById("shutdownButton").addEventListener("click", function () {
+			fetch("/shutdown", { method: "POST" })
+		});
+	</script>
+</body>
+</html>
