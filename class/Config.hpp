@@ -1,6 +1,6 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
-#include "webserv.hpp"
+#include "../includes/webserv.hpp"
 class Config {
 
 private:

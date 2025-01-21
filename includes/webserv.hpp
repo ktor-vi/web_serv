@@ -21,10 +21,12 @@
 #include <sys/wait.h>
 #include <sys/epoll.h>
 #include <sstream>
+#include <sys/stat.h>
 
+#include "../class/HandleRequests.hpp"
 #include "struct.hpp"
-#include "Config.hpp"
-#include "WebServer.hpp"
+#include "../class/Config.hpp"
+#include "../class/WebServer.hpp"
 
 class WebServer;
 
@@ -39,7 +41,9 @@ void	make_socket_nonblocking(int sockfd); // litteral
 char *ft_call_cgi(char *ans);
 
 // HTTP PART
-int handle_request(int client_fd);
-void send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
+void	postMethods(char *buffer);
+void	getMethods(int clientFd, ssize_t bytes);
+int		handle_request(int client_fd);
+void	send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
 
 #endif

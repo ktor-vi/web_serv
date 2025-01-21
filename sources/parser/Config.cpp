@@ -1,4 +1,4 @@
-#include "../../includes/Config.hpp"
+#include "../../class/Config.hpp"
 Config::Config() : lineNumber(0) {}
 Config::~Config() {}
 bool Config::parseFile(const std::string &fileName) {

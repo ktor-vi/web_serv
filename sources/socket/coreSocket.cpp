@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 #include "../../includes/webserv.hpp"
+
 #define MAX_EVENTS 10
 
 /*Résumé des fonctions finales
@@ -61,7 +62,7 @@ void	ft_webserver(WebServer &data)
 			else // sinon c'est une connexion deja accordee, a lire et repondre
 			{
 				client_fd = t_events[i].data.fd;
-				handle_request(client_fd);
+				HandleRequests request(client_fd); // replacer par ex ; "ft_handle_request(client_fd, data)" data est l'obj webserv
 				if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL) == -1)
 				{
 					perror("EPOLL_CTL DEL ERROR");

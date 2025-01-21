@@ -1,4 +1,4 @@
-#include "../../includes/WebServer.hpp"
+#include "../../class/WebServer.hpp"
 
 WebServer::WebServer(Config &conf) {
   std::vector<ServerBlock> server_blocks = conf.getServers();
@@ -60,7 +60,6 @@ WebServer::WebServer(Config &conf) {
             (!lt->second.empty() || lt->second == "off") ? true : false;
           location.cgi_depends.second = lt->second;
         } else if (lt->first == "allowed_methods") {
-          std::cout << lt->second << std::endl;
           std::istringstream iss(lt->second);
           std::string method;
           while (iss >> method) {
