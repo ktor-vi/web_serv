@@ -17,14 +17,14 @@ public:
   int							getSocketFd(int index);
   int							getPort(int index);
   int							getNumberOfServers();
-  std::string 					getServerName(int index);
-  std::string 					getErrorPagePath(int index, int error_code);
-  std::string 					getIndexPath(int index, std::string location_path);
-  std::vector<std::string> 		getAllowedMethods(int index,std::string location_path);
-  bool 							getCGIStatus(int index, std::string location_path);
-  std::string 					getCGIPath(int index, std::string location_path);
-  std::string 					getDirDefaultPath(int index, std::string location_path);
-  std::pair<bool, std::string> 	getCGIDepends(int index, std::string location_path);
+  std::string 					getServerName(int port);
+  std::string 					getErrorPagePath(int port, int error_code);
+  std::string 					getIndexPath(int port, std::string location_path);
+  std::vector<std::string> 		getAllowedMethods(int port,std::string location_path);
+  bool 							getCGIStatus(int port, std::string location_path);
+  std::string 					getCGIPath(int port, std::string location_path);
+  std::string 					getDirDefaultPath(int port, std::string location_path);
+  std::pair<bool, std::string> 	getCGIDepends(int port, std::string location_path);
   const std::vector<Server>		&getServers() const;
 };
 
