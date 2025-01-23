@@ -1,7 +1,6 @@
 #ifndef HANDLEREQUESTS_HPP
 #define HANDLEREQUESTS_HPP
 #include "../includes/webserv.hpp"
-#include "../../class/WebServer.hpp"
 
 
 class HandleRequests
