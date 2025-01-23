@@ -11,7 +11,7 @@ static int	whichMethod(char *buffer)
 	return (0);
 }
 
-HandleRequests::HandleRequests(int clientFd)
+HandleRequests::HandleRequests(int clientFd, WebServer &data)
 {
 	this->_clientFd = clientFd;
 	try

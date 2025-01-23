@@ -1,12 +1,13 @@
 #ifndef HANDLEREQUESTS_HPP
 #define HANDLEREQUESTS_HPP
 #include "../includes/webserv.hpp"
+#include "../../class/WebServer.hpp"
 
 
 class HandleRequests
 {
 	public:
-		HandleRequests(int clientFd);
+		HandleRequests(int clientFd, WebServer &data);
 		HandleRequests(const HandleRequests &copy);
 		HandleRequests	&operator=(const HandleRequests &rhs);
 		~HandleRequests(void);
