@@ -2,6 +2,7 @@
 #define HANDLEREQUESTS_HPP
 #include "../includes/webserv.hpp"
 
+class WebServer;
 
 class HandleRequests
 {
