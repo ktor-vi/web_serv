@@ -6,7 +6,7 @@
 class HandleRequests
 {
 	public:
-		HandleRequests(int clientFd);
+		HandleRequests(int clientFd, WebServer &webServData);
 		HandleRequests(const HandleRequests &copy);
 		HandleRequests	&operator=(const HandleRequests &rhs);
 		~HandleRequests(void);
