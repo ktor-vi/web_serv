@@ -1,10 +1,6 @@
 #include "../../includes/webserv.hpp"
 
 class WebServer;
-class WebServ;
-class webServer;
-class webserv;
-class webtamer;
 
 static int	whichMethod(char *buffer)
 {
