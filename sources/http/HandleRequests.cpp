@@ -11,6 +11,25 @@ static int	whichMethod(char *buffer)
 	return (0);
 }
 
+static int getPort(char *buffer)
+{
+    std::string req = buffer;
+
+    int start = req.find("Host:");
+    int line_start = start + 5;
+    while (req[line_start] == ' ') { 
+        line_start++;
+    }
+
+    int line_end = req.find("\r\n", line_start);
+    if (line_end == std::string::npos) {
+        line_end = req.find("\n", line_start); 
+    }
+    std::string hostline = req.substr(line_start, line_end - line_start);
+	int port = std::atoi(hostline.substr(hostline.find_first_of(":") + 1).c_str());
+	return port;
+}
+
 HandleRequests::HandleRequests(int clientFd)
 {
 	this->_clientFd = clientFd;
@@ -23,6 +42,7 @@ HandleRequests::HandleRequests(int clientFd)
 
 		this->_buffer[this->_bytes] = '\0'; // Null-terminate the received data
 		this->_request = this->_buffer;
+		this->_port = getPort(this->_buffer);
 		int	method = whichMethod(this->_buffer);
 		if (method > 0)
 		{

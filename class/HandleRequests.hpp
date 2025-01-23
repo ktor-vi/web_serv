@@ -29,6 +29,7 @@ class HandleRequests
 		std::string	_filePath;
 		std::string	_rootDir;
 		std::string	_url;
+		std::string _port;
 		std::string	_request;
 		std::string	_response;
 		std::string	_folderType;
