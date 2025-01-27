@@ -7,17 +7,18 @@ int		HandleRequests::openIndex(WebServer &webServData)
 	return (this->_fdPage);
 }
 
-void sendHttpResponseHeader(int client_fd, const char *content_type, ssize_t content_length)
-{
-    char	response_header[1024];
 
-    snprintf(response_header, sizeof(response_header),
-             "HTTP/1.1 200 OK\r\n"
-             "Content-Type: %s\r\n"
-             "Content-Length: %zd\r\n\r\n",
-             content_type, content_length);
-    send(client_fd, response_header, strlen(response_header), 0);
-}
+// int sendHttpResponseHeader(int client_fd, const char *content_type, ssize_t content_length)
+// {
+//     char	response_header[1024];
+
+//     snprintf(response_header, sizeof(response_header),
+//              "HTTP/1.1 200 OK\r\n"
+//              "Content-Type: %s\r\n"
+//              "Content-Length: %zd\r\n\r\n",
+//              content_type, content_length);
+//     send(client_fd, response_header, strlen(response_header), 0);
+// }
 
 bool fileExists(const std::string& path)
 {
@@ -46,7 +47,7 @@ std::string HandleRequests::findFolder(std::string url)
 	else if (endsWith(url, ".png"))
 		type = "img";
 	else
-		type = "other"; // gestion des erreurs ?
+		type = "text/html"; // gestion des erreurs ?
 	return (type);
 }
 
@@ -91,14 +92,15 @@ std::string	HandleRequests::findContentType(void)
 // 	 std::ifstream	file(this->_filePath, std::ios::binary | std::ios::ate);
 // }
 
-void HandleRequests::sendHttpResponse(void)
+int HandleRequests::sendHttpResponseHeader(void)
 {
 	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + findContentType() + "\r\n";
 	header += "Content-Length: " +  this->_request + "\r\n";
-	header += "Connection: keep-alive\r\n";
+	header += "Connection: bite keep-alive\r\n";
 	header += "\r\n";
 	send(this->_clientFd, header.c_str(), header.size(), 0);
+	return header.length();	
 }
 
 void	HandleRequests::getMethods(WebServer &webServData)
@@ -122,12 +124,14 @@ void	HandleRequests::getMethods(WebServer &webServData)
 	}
 	else
 		std::cout << "LE FICHIER EXISTE PAS :(" << std::endl;
-	this->_bytes = read(this->_fdPage, this->_bufferPage, sizeof(this->_bufferPage) - 1);
+	char bufferPage[this->_bodySize];
+	int headerLen = sendHttpResponseHeader();
+	this->_bytes = read(this->_fdPage, bufferPage, sizeof(bufferPage - headerLen) - 1);
 	if (this->_bytes > 0)
-	{
-		sendHttpResponseHeader(this->_clientFd, "text/html", this->_bytes);
-		send(this->_clientFd, this->_bufferPage, this->_bytes, 0);
-	}
+		send(this->_clientFd, bufferPage, this->_bytes - headerLen, 0);
+	while(read(this->_fdPage, bufferPage, sizeof(bufferPage) - 1) > 0)
+		send(this->_clientFd, bufferPage, this->_bytes, 0)	;
+
 	close(this->_fdPage);
 }
 

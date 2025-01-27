@@ -100,6 +100,7 @@ HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd
 		this->_buffer[this->_bytes] = '\0'; // Null-terminate the received data
 		this->_request = this->_buffer;
 		this->_port = getPort(this->_buffer);
+		this->_bodySize = 1024;
 		int	method = whichMethod(this->_buffer);
 		if (method > 0)
 		{

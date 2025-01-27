@@ -16,7 +16,7 @@ class HandleRequests
 		std::string findFolder(std::string url);
 		std::string	findRoot(std::string contentType);
 		std::string	findPath(std::string rootDir);
-		void 		sendHttpResponse(void);
+		int 		sendHttpResponseHeader(void);
 		std::string	findContentType(void);
 		void		getMethods(WebServer &webServData);
 		std::string	createBuffer(int clientFd);
@@ -29,9 +29,14 @@ class HandleRequests
 		std::string	buffer;
 		size_t 		_bytes;
 		int			_fdPage;
+<<<<<<< HEAD
 		char		_bufferPage[8192];
+=======
+		int			_clientFd;
+>>>>>>> 8aad97e (before pull)
 		
 		std::string	_filePath;
+		int 		_bodySize;
 		std::string	_rootDir;
 		std::string	_url;
 		int			 _port;
