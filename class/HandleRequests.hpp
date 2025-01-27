@@ -22,18 +22,19 @@ class HandleRequests
 		std::string	createBuffer(int clientFd);
 
 	private:
+		int			_clientFd;
 		WebServer 	&_webServData;
 		char		_str[1024];
-		// char		_buffer[2048];
+		char		_buffer[2048];
 		std::string	buffer;
-		// size_t 		_bytes;
+		size_t 		_bytes;
 		int			_fdPage;
 		char		_bufferPage[8192];
-		int			_clientFd;
 		
 		std::string	_filePath;
 		std::string	_rootDir;
 		std::string	_url;
+		int			 _port;
 		std::string	_request;
 		std::string	_response;
 		std::string	_folderType;

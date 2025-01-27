@@ -101,7 +101,6 @@ void HandleRequests::sendHttpResponse(void)
 	send(this->_clientFd, header.c_str(), header.size(), 0);
 }
 
-
 void	HandleRequests::getMethods(WebServer &webServData)
 {
 	// if 127.0.0.1::8080, send facebook html, if 8081 twitter html

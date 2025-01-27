@@ -41,7 +41,7 @@ void	make_socket_nonblocking(int sockfd); // litteral
 char *ft_call_cgi(char *ans);
 
 // HTTP PART
-void	postMethods(char *buffer);
+void	postMethods(std::string buffer);
 void	getMethods(int clientFd, ssize_t bytes);
 int		handle_request(int client_fd);
 void	send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
