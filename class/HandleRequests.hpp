@@ -12,17 +12,21 @@ class HandleRequests
 		HandleRequests	&operator=(const HandleRequests &rhs);
 		~HandleRequests(void);
 		
+		int			openIndex(WebServer &webServData);
 		std::string findFolder(std::string url);
 		std::string	findRoot(std::string contentType);
 		std::string	findPath(std::string rootDir);
 		void 		sendHttpResponse(void);
 		std::string	findContentType(void);
-		void		getMethods(void);
+		void		getMethods(WebServer &webServData);
+		std::string	createBuffer(int clientFd);
 
 	private:
+		WebServer 	&_webServData;
 		char		_str[1024];
-		char		_buffer[2048];
-		ssize_t 	_bytes;
+		// char		_buffer[2048];
+		std::string	buffer;
+		// size_t 		_bytes;
 		int			_fdPage;
 		char		_bufferPage[8192];
 		int			_clientFd;

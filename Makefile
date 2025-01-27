@@ -33,7 +33,7 @@ $(EXECUTABLE_NAME): $(OBJECTS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "$(YELLOW)Compiling $<...$(NC)"
 	@mkdir -p $(dir $@)
-	@$(COMPILATOR) $(FLAGS) -c $< -o $@
+	@$(COMPILATOR) $(FLAGS) -c $< -o $@ -I.
 
 # Nettoyage
 clean:

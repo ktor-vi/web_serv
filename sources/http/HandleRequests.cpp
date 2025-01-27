@@ -13,12 +13,33 @@ static int	whichMethod(char *buffer)
 	return (0);
 }
 
-HandleRequests::HandleRequests(int clientFd, WebServer &webServData)
+#define CHUNK_SIZE 4096
+
+std::string	HandleRequests::createBuffer(int clientFd)
 {
-	this->_clientFd = clientFd;
+	char		buffer[CHUNK_SIZE];
+	size_t		bytesRead;
+	std::string	totalData;
+
+	while (true)
+	{
+		memset(buffer, 0, sizeof(buffer));
+		bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0); // read equivalent
+		if (bytesRead > 0)
+		{
+
+		}
+
+	}
+	return (totalData);
+}
+
+HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd(clientFd), _webServData(webServData)
+{
 	try
 	{
-		memset(_buffer, 0, sizeof(_buffer));
+		memset(this->_buffer, 0, sizeof(this->_buffer));
+		this->buffer = createBuffer(clientFd);
 		this->_bytes = recv(clientFd, this->_buffer, 2048, 0); // read equivalent
 		if (this->_bytes <= 0)
 			throw (std::out_of_range("recv"));
@@ -33,7 +54,7 @@ HandleRequests::HandleRequests(int clientFd, WebServer &webServData)
 			{
 				case 1:
 					std::cout << "[GET method asked]" << std::endl;
-					getMethods();
+					getMethods(webServData);
 					break ;
 				case 2:
 					std::cout << "[POST method asked]" << std::endl;

@@ -1,5 +1,12 @@
 #include "../../includes/webserv.hpp"
 
+int		HandleRequests::openIndex(WebServer &webServData)
+{
+	std::string	index = webServData.getIndexPath(webServData.getPort(0) , "/");
+	this->_fdPage = open(index.c_str(), O_RDONLY); // index
+	return (this->_fdPage);
+}
+
 void sendHttpResponseHeader(int client_fd, const char *content_type, ssize_t content_length)
 {
     char	response_header[1024];
@@ -54,7 +61,7 @@ std::string	HandleRequests::findRoot(std::string contentType)
 	switch(i)
 	{
 		case 0:
-			root = "/home/rdendonc/Documents/WebServ/public/images";
+			root = this->_webServData.getRootPath(8080, "/images/");
 			break ;
 		case 1:
 			root = "/home/rdendonc/Documents/WebServ/public/css";
@@ -94,10 +101,12 @@ void HandleRequests::sendHttpResponse(void)
 	send(this->_clientFd, header.c_str(), header.size(), 0);
 }
 
-void	HandleRequests::getMethods()
+
+void	HandleRequests::getMethods(WebServer &webServData)
 {
 	// if 127.0.0.1::8080, send facebook html, if 8081 twitter html
-	this->_fdPage = open("public/html/index.html", O_RDONLY); // index
+	// this->_fdPage = open("public/html/index.html", O_RDONLY); // index
+	this->_fdPage = openIndex(webServData);
 	if (this->_fdPage < 0)
 	{
 		perror("File open error");
@@ -107,9 +116,9 @@ void	HandleRequests::getMethods()
 	this->_folderType = findFolder(this->_url);
 	this->_rootDir = findRoot(this->_folderType);
 	this->_filePath = this->_rootDir + this->_url;
+	std::cout << "File path: " << this->_filePath << std::endl;
 	if (fileExists(this->_filePath))
 	{
-		std::cout << this->_filePath << std::endl;
 		std::cout << "LE FICHIER EXISTE" << std::endl;
 	}
 	else

@@ -22,7 +22,7 @@ public:
   std::string 					getServerName(int port);
   std::string 					getErrorPagePath(int port, int error_code);
   std::string 					getIndexPath(int port, std::string location_path);
-  std::string getRootPath(int port, std::string location_path) ;
+  std::string 					getRootPath(int port, std::string location_path) ;
   std::vector<std::string> 		getAllowedMethods(int port,std::string location_path);
   bool 							getCGIStatus(int port, std::string location_path);
   std::string 					getCGIPath(int port, std::string location_path);
