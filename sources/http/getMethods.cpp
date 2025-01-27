@@ -46,8 +46,10 @@ std::string HandleRequests::findFolder(std::string url)
 		type = "img";
 	else if (endsWith(url, ".png"))
 		type = "img";
-	else
+	else if(endsWith(url, ".html")) 
 		type = "text/html"; // gestion des erreurs ?
+	else if(endsWith(url, ".css")) 
+		type = "text/css";
 	return (type);
 }
 
@@ -71,19 +73,23 @@ std::string	HandleRequests::findRoot(std::string contentType)
 			root = "/home/rdendonc/Documents/WebServ/public/html";
 			break ;
 		default:
-			std::cout << "no existing root" << std::endl;
+			std::cout << " root" << std::endl;
 	}
 	return (root);
 }
 
-std::string	HandleRequests::findContentType(void)
+std::string	findContentType(std::string url)
 {
 	std::string	contentType;
 
-	if (endsWith(this->_url, ".jpeg") || endsWith(this->_url, ".jpg"))
+	if (endsWith(url, ".jpeg") || endsWith(url, ".jpg"))
 		contentType += "images/jpeg";
-	if (endsWith(this->_url, ".png"))
+	else if (endsWith(url, ".png"))
 		contentType += "images/png";
+	else if(endsWith(url, ".html")) 
+		contentType = "text/html"; // gestion des erreurs ?
+	else if(endsWith(url, ".css")) 
+		contentType = "text/css";
 	return (contentType);
 }
 
@@ -92,47 +98,87 @@ std::string	HandleRequests::findContentType(void)
 // 	 std::ifstream	file(this->_filePath, std::ios::binary | std::ios::ate);
 // }
 
-int HandleRequests::sendHttpResponseHeader(void)
+int sendHttpResponseHeader(int clientFd, size_t contentLength, const std::string &contentType, const std::string &statusCode)
 {
-	std::string header = "HTTP/1.1 200 OK\r\n";
-	header += "Content-Type: " + findContentType() + "\r\n";
-	header += "Content-Length: " +  this->_request + "\r\n";
-	header += "Connection: bite keep-alive\r\n";
-	header += "\r\n";
-	send(this->_clientFd, header.c_str(), header.size(), 0);
-	return header.length();	
+    std::ostringstream headerStream;
+    headerStream << "HTTP/1.1 " << statusCode << " \r\n";
+    headerStream << "Content-Type: " << contentType << "\r\n";
+    headerStream << "Content-Length: " << contentLength << "\r\n";
+    headerStream << "Connection: keep-alive\r\n";
+    headerStream << "\r\n";
+    std::string header = headerStream.str();
+
+    // Send the header
+    send(clientFd, header.c_str(), header.size(), 0);
+    return header.size();
 }
 
-void	HandleRequests::getMethods(WebServer &webServData)
-{
-	// if 127.0.0.1::8080, send facebook html, if 8081 twitter html
-	// this->_fdPage = open("public/html/index.html", O_RDONLY); // index
-	this->_fdPage = openIndex(webServData);
-	if (this->_fdPage < 0)
-	{
-		perror("File open error");
-		close(this->_clientFd);
-	}
-	this->_url = this->_request.substr(4, this->_request.find(' ', 4) - 4);
-	this->_folderType = findFolder(this->_url);
-	this->_rootDir = findRoot(this->_folderType);
-	this->_filePath = this->_rootDir + this->_url;
-	std::cout << "File path: " << this->_filePath << std::endl;
-	if (fileExists(this->_filePath))
-	{
-		std::cout << "LE FICHIER EXISTE" << std::endl;
-	}
-	else
-		std::cout << "LE FICHIER EXISTE PAS :(" << std::endl;
-	char bufferPage[this->_bodySize];
-	int headerLen = sendHttpResponseHeader();
-	this->_bytes = read(this->_fdPage, bufferPage, sizeof(bufferPage - headerLen) - 1);
-	if (this->_bytes > 0)
-		send(this->_clientFd, bufferPage, this->_bytes - headerLen, 0);
-	while(read(this->_fdPage, bufferPage, sizeof(bufferPage) - 1) > 0)
-		send(this->_clientFd, bufferPage, this->_bytes, 0)	;
+static void sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode)
+{int fd = open(filePath.c_str(), O_RDONLY);
+    if (fd < 0)
+    {
+        perror("File does not exist");
+        return;
+    }
+    size_t fileSize = 0;
+    char sizeBuffer[bodySize];
+    ssize_t bytesRead;
+    while ((bytesRead = read(fd, sizeBuffer, sizeof(sizeBuffer))) > 0)
+    {
+        fileSize += bytesRead;
+    }
+    if (bytesRead < 0)
+    {
+        perror("Error reading file to determine size");
+        close(fd);
+        close(clientFd);
+        return;
+    }
+    close(fd);
+    fd = open(filePath.c_str(), O_RDONLY);
+    if (fd < 0)
+    {
+        perror("File reopen error");
+        close(clientFd);
+        return;
+    }
+    char buffer[bodySize]; // Chunk size
+    sendHttpResponseHeader(clientFd, fileSize, findContentType(url), statusCode);
+    while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0)
+    {
+        send(clientFd, buffer, bytesRead, 0);
+    }
+    close(fd);}
 
-	close(this->_fdPage);
+void HandleRequests::getMethods(WebServer &webServData)
+{
+    this->_fdPage = openIndex(webServData);
+    if (this->_fdPage < 0)
+    {
+        perror("File open error");
+        close(this->_clientFd);
+        return;
+    }
+    this->_url = this->_request.substr(4, this->_request.find(' ', 4) - 4);
+	this->_rootUrl = this->_url.substr(0, this->_url.find_last_of("/") + 1);
+    this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
+    if (this->_url[this->_url.length() - 1] == '/')
+        this->_filePath = this->_rootDir + "/index.html";
+    else
+		this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
+
+	if(access(this->_filePath.c_str(), R_OK) != 0)
+	{
+		sendFile(webServData.getErrorPagePath(this->_port, 404), this->_url, this->_bodySize, this->_clientFd, "404 Not Found");	
+		return;
+	}
+	std::vector<std::string> allowed_methods = webServData.getAllowedMethods(this->_port, this->_rootUrl);
+	if(std::find(allowed_methods.begin(), allowed_methods.end(), "GET") == allowed_methods.end())
+	{
+		sendFile(webServData.getErrorPagePath(this->_port, 405), this->_url, this->_bodySize, this->_clientFd, "405 Method Not Allowed");
+		return;
+	}
+	sendFile(this->_filePath, this->_url, this->_bodySize, this->_clientFd, "200 OK");
 }
 
 // void	HandleRequests::getMethods()

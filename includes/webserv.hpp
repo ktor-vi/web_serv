@@ -1,6 +1,7 @@
 #ifndef MY_HEADER_HPP
 #define MY_HEADER_HPP
 
+#include <algorithm>
 #include <arpa/inet.h> // htons, htonl, ntohs, ntohl
 #include <cstdlib>	 // pour std::atoi
 #include <dirent.h>	// opendir, readdir, closedir
@@ -45,5 +46,6 @@ void	postMethods(std::string buffer);
 void	getMethods(int clientFd, ssize_t bytes);
 int		handle_request(int client_fd);
 void	send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
-
+int sendHttpResponseHeader(int clientFd, size_t contentLength, const std::string &contentType, const std::string &statusCode);
+std::string	findContentType(std::string url);
 #endif

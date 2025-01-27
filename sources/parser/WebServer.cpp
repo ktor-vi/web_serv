@@ -259,7 +259,7 @@ std::string WebServer::getErrorPagePath(int port, int error_code) {
       if (jt->first == error_code)
         return jt->second;
     }
-    return NULL;
+    return "";
   }
 
   std::string WebServer::getIndexPath(int port, std::string location_path) {
@@ -278,7 +278,7 @@ std::string WebServer::getErrorPagePath(int port, int error_code) {
       if (kt->path == location_path)
         return kt->index_path;
     }
-    return NULL;
+    return "";
   }
 
   std::string WebServer::getRootPath(int port, std::string location_path) {
@@ -297,7 +297,7 @@ std::string WebServer::getErrorPagePath(int port, int error_code) {
       if (kt->path == location_path)
         return kt->root;
     }
-    return NULL;
+    return "";
   }
 
   std::string WebServer::getDirDefaultPath(int port, std::string location_path) {
@@ -316,7 +316,7 @@ std::string WebServer::getErrorPagePath(int port, int error_code) {
       if (kt->path == location_path)
         return kt->dir_default_path;
     }
-    return NULL;
+    return "";
   }
 
   std::pair<bool, std::string>
@@ -355,7 +355,7 @@ std::string WebServer::getErrorPagePath(int port, int error_code) {
       if (kt->path == location_path)
         return kt->cgi_path;
     }
-    return NULL;
+    return "";
   }
 
   bool WebServer::getCGIStatus(int port, std::string location_path) {
