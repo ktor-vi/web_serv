@@ -20,7 +20,7 @@ int		HandleRequests::openIndex(WebServer &webServData)
 //     send(client_fd, response_header, strlen(response_header), 0);
 // }
 
-bool fileExists(const std::string& path)
+bool fileExists(const std::string &path)
 {
 	struct stat buffer;
 
@@ -90,6 +90,8 @@ std::string	findContentType(std::string url) // comment ca se fait que les gifs 
 		contentType = "text/html"; // gestion des erreurs ?
 	else if(endsWith(url, ".css")) 
 		contentType = "text/css";
+	else if(endsWith(url, ".ico")) 
+		contentType = "images/ico";
 	return (contentType);
 }
 
@@ -114,7 +116,8 @@ int sendHttpResponseHeader(int clientFd, size_t contentLength, const std::string
 }
 
 static void sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode)
-{int fd = open(filePath.c_str(), O_RDONLY);
+{
+	int fd = open(filePath.c_str(), O_RDONLY);
     if (fd < 0)
     {
         perror("File does not exist");
@@ -142,6 +145,7 @@ static void sendFile(std::string filePath, std::string url, int bodySize, int cl
         close(clientFd);
         return;
     }
+	std::cout << "!!!! filePath: " << filePath << std::endl;
     char buffer[bodySize]; // Chunk size
     sendHttpResponseHeader(clientFd, fileSize, findContentType(url), statusCode);
     while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0)
@@ -171,6 +175,7 @@ void	HandleRequests::initInfos(WebServer &webServData)
 void HandleRequests::getMethods(WebServer &webServData)
 {
 	initInfos(webServData);
+
 	if (access(this->_filePath.c_str(), R_OK) != 0)
 	{
 		sendFile(webServData.getErrorPagePath(this->_port, 404), this->_url, this->_bodySize, this->_clientFd, "404 Not Found");	
@@ -183,6 +188,7 @@ void HandleRequests::getMethods(WebServer &webServData)
 		return;
 	}
 	sendFile(this->_filePath, this->_url, this->_bodySize, this->_clientFd, "200 OK");
+	std::cout << "COUCOU !!!!" << std::endl;
 }
 
 // void	HandleRequests::getMethods()
@@ -216,5 +222,4 @@ void HandleRequests::getMethods(WebServer &webServData)
 // 		send(this->_clientFd, this->_bufferPage, this->_bytes, 0);
 // 	}
 // 	close(this->_fdPage);
-
 // }

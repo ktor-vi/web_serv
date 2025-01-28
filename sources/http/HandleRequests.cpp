@@ -31,18 +31,21 @@ static int getPort(std::string req) /*par rapport a la requete actuelle*/
 
 std::string	HandleRequests::createBuffer(int clientFd)
 {
-	char		buffer[CHUNK_SIZE];
+	size_t		bufferSize = CHUNK_SIZE;
+	char		*buffer = new char[CHUNK_SIZE];
 	size_t		bytesRead;
 	std::string	totalData;
 
 	while (true)
 	{
-		memset(buffer, 0, sizeof(buffer));
-		bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0); // read equivalent
+		memset(buffer, 0, bufferSize);
+		bytesRead = recv(clientFd, buffer, bufferSize - 1, 0); // read equivalent
 		if (bytesRead > 0)
 		{
 			totalData += std::string(buffer, bytesRead);
 			std::cout << "Chunk received (" << bytesRead << " bytes): " << std::string(buffer, bytesRead) << "\n";
+			if (totalData.find("\r\n\r\n") != std::string::npos)
+				break;
 		}
 		else if (bytesRead == 0)
 		{
@@ -50,61 +53,28 @@ std::string	HandleRequests::createBuffer(int clientFd)
 			break ;
 		}			
 		else if (bytesRead <= 0)
+		{
+			delete[] buffer;
 			throw (std::out_of_range("recv"));
+		}
 		std::cout << "Total data received:\n" << totalData << "\n";
 	}
+	delete[] buffer;
+	this->_bodySize = bytesRead;
 	return (totalData);
 }
-
-// HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd(clientFd), _webServData(webServData)
-// {
-// 	try
-// 	{
-// 		this->buffer = createBuffer(clientFd);
-// 		this->_port = getPort(this->buffer);
-// 		this->_request = this->buffer;
-// 		int	method = whichMethod(this->buffer);
-// 		if (method > 0)
-// 		{
-// 			std::cout << "<<< HTTP REQUEST RECEIVED >>>" << std::endl << this->buffer << std::endl;
-// 			switch(method)
-// 			{
-// 				case 1:
-// 					std::cout << "[GET method asked]" << std::endl;
-// 					getMethods(webServData);
-// 					break ;
-// 				case 2:
-// 					std::cout << "[POST method asked]" << std::endl;
-// 					postMethods(this->buffer);
-// 					break ;
-// 				default:
-// 					break ;
-// 			}
-// 		}
-// 	}
-// 	catch(const std::exception &e)
-// 	{
-// 		std::cerr << "Error: " << e.what() << std::endl;
-// 	}
-// }
 
 HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd(clientFd), _webServData(webServData)
 {
 	try
 	{
-		memset(_buffer, 0, sizeof(_buffer));
-		this->_bytes = recv(clientFd, this->_buffer, 2048, 0); // read equivalent
-		if (this->_bytes <= 0)
-			throw (std::out_of_range("recv"));
-
-		this->_buffer[this->_bytes] = '\0'; // Null-terminate the received data
-		this->_request = this->_buffer;
-		this->_port = getPort(this->_buffer);
-		this->_bodySize = 1024;
-		int	method = whichMethod(this->_buffer);
+		this->buffer = createBuffer(clientFd);
+		this->_port = getPort(this->buffer);
+		this->_request = this->buffer;
+		int	method = whichMethod(this->buffer);
 		if (method > 0)
 		{
-			std::cout << "<<< HTTP REQUEST RECEIVED >>>" << std::endl << this->_buffer << std::endl;
+			std::cout << "<<< HTTP REQUEST RECEIVED >>>" << std::endl << this->buffer << std::endl;
 			switch(method)
 			{
 				case 1:
@@ -113,7 +83,7 @@ HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd
 					break ;
 				case 2:
 					std::cout << "[POST method asked]" << std::endl;
-					postMethods(this->_buffer);
+					postMethods(this->buffer);
 					break ;
 				default:
 					break ;
@@ -125,6 +95,44 @@ HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd
 		std::cerr << "Error: " << e.what() << std::endl;
 	}
 }
+
+// HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd(clientFd), _webServData(webServData)
+// {
+// 	try
+// 	{
+// 		memset(_buffer, 0, sizeof(_buffer));
+// 		this->_bytes = recv(clientFd, this->_buffer, 2048, 0); // read equivalent
+// 		if (this->_bytes <= 0)
+// 			throw (std::out_of_range("recv"));
+
+// 		this->_buffer[this->_bytes] = '\0'; // Null-terminate the received data
+// 		this->_request = this->_buffer;
+// 		this->_port = getPort(this->_buffer);
+// 		this->_bodySize = 1024;
+// 		int	method = whichMethod(this->_buffer);
+// 		if (method > 0)
+// 		{
+// 			std::cout << "<<< HTTP REQUEST RECEIVED >>>" << std::endl << this->_buffer << std::endl;
+// 			switch(method)
+// 			{
+// 				case 1:
+// 					std::cout << "[GET method asked]" << std::endl;
+// 					getMethods(webServData);
+// 					break ;
+// 				case 2:
+// 					std::cout << "[POST method asked]" << std::endl;
+// 					postMethods(this->_buffer);
+// 					break ;
+// 				default:
+// 					break ;
+// 			}
+// 		}
+// 	}
+// 	catch(const std::exception &e)
+// 	{
+// 		std::cerr << "Error: " << e.what() << std::endl;
+// 	}
+// }
 
 HandleRequests::~HandleRequests() {
     // Ajoutez ici tout code nécessaire à la libération des ressources.
