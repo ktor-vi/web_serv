@@ -78,14 +78,14 @@ std::string	HandleRequests::findRoot(std::string contentType)
 	return (root);
 }
 
-std::string	findContentType(std::string url)
+std::string	findContentType(std::string url) // comment ca se fait que les gifs passent ??
 {
 	std::string	contentType;
 
 	if (endsWith(url, ".jpeg") || endsWith(url, ".jpg"))
-		contentType += "images/jpeg";
+		contentType = "images/jpeg";
 	else if (endsWith(url, ".png"))
-		contentType += "images/png";
+		contentType = "images/png";
 	else if(endsWith(url, ".html")) 
 		contentType = "text/html"; // gestion des erreurs ?
 	else if(endsWith(url, ".css")) 
@@ -150,30 +150,34 @@ static void sendFile(std::string filePath, std::string url, int bodySize, int cl
     }
     close(fd);}
 
+void	HandleRequests::initInfos(WebServer &webServData)
+{
+	this->_fdPage = openIndex(webServData);
+	if (this->_fdPage < 0)
+	{
+		perror("File open error");
+		close(this->_clientFd);
+		return;
+	}
+	this->_url = this->_request.substr(4, this->_request.find(' ', 4) - 4);
+	this->_rootUrl = this->_url.substr(0, this->_url.find_last_of("/") + 1);
+	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
+	if (this->_url[this->_url.length() - 1] == '/')
+		this->_filePath = this->_rootDir + "/index.html";
+	else
+		this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
+}
+
 void HandleRequests::getMethods(WebServer &webServData)
 {
-    this->_fdPage = openIndex(webServData);
-    if (this->_fdPage < 0)
-    {
-        perror("File open error");
-        close(this->_clientFd);
-        return;
-    }
-    this->_url = this->_request.substr(4, this->_request.find(' ', 4) - 4);
-	this->_rootUrl = this->_url.substr(0, this->_url.find_last_of("/") + 1);
-    this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
-    if (this->_url[this->_url.length() - 1] == '/')
-        this->_filePath = this->_rootDir + "/index.html";
-    else
-		this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
-
-	if(access(this->_filePath.c_str(), R_OK) != 0)
+	initInfos(webServData);
+	if (access(this->_filePath.c_str(), R_OK) != 0)
 	{
 		sendFile(webServData.getErrorPagePath(this->_port, 404), this->_url, this->_bodySize, this->_clientFd, "404 Not Found");	
 		return;
 	}
-	std::vector<std::string> allowed_methods = webServData.getAllowedMethods(this->_port, this->_rootUrl);
-	if(std::find(allowed_methods.begin(), allowed_methods.end(), "GET") == allowed_methods.end())
+	std::vector<std::string> allowedMethods = webServData.getAllowedMethods(this->_port, this->_rootUrl);
+	if (std::find(allowedMethods.begin(), allowedMethods.end(), "GET") == allowedMethods.end())
 	{
 		sendFile(webServData.getErrorPagePath(this->_port, 405), this->_url, this->_bodySize, this->_clientFd, "405 Method Not Allowed");
 		return;

@@ -30,7 +30,7 @@ void	ft_setup_socket(int *server_fd, int port, int epoll_fd, struct epoll_event 
 	addr_serv.sin_port = htons(port);				
 	inet_pton(AF_INET, "127.0.0.1", &addr_serv.sin_addr); // server will listen 127.0.0.1:808x
 	if (bind(*server_fd, (const struct sockaddr *)&addr_serv, sizeof(addr_serv)) == -1) // link socket to the addr:port
-		perror("BIND ERROR\n"), exit(1);
+		perror("BIND ERROR"), exit(1);
 	if (listen(*server_fd, 5) < 0) 														//lock socket in listen mode
 		perror("LISTEN ERROR\n"), exit(1);
 	ptr->events = EPOLLIN;

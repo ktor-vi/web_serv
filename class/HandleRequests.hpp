@@ -18,6 +18,7 @@ class HandleRequests
 		std::string	findPath(std::string rootDir);
 		int 		sendHttpResponseHeader(size_t contentLength, const std::string& contentType, const std::string &statusCode);
 		std::string	findContentType(std::string url);
+		void		initInfos(WebServer &webServData);
 		void		getMethods(WebServer &webServData);
 		std::string	createBuffer(int clientFd);
 
