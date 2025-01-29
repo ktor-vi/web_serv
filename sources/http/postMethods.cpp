@@ -1,7 +1,8 @@
 #include "../../includes/webserv.hpp"
 
-void	postMethods(std::string buffer)
+void	HandleRequests::postMethods(WebServer &webServerData)
 {
-	if (!strncmp("POST /shutdown", buffer.c_str(), 12))
+	(void) webServerData;
+	if (!strncmp("POST /shutdown", this->buffer.c_str(), 12))
 		throw (std::out_of_range("ask to close server"));
 }

@@ -27,8 +27,6 @@ static int getPort(std::string req) /*par rapport a la requete actuelle*/
 	return port;
 }
 
-#define CHUNK_SIZE 4096
-
 std::string	HandleRequests::createBuffer(int clientFd)
 {
 	size_t		bufferSize = CHUNK_SIZE;
@@ -83,7 +81,7 @@ HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd
 					break ;
 				case 2:
 					std::cout << "[POST method asked]" << std::endl;
-					postMethods(this->buffer);
+					postMethods(webServData);
 					break ;
 				default:
 					break ;

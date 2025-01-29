@@ -7,20 +7,7 @@ int		HandleRequests::openIndex(WebServer &webServData)
 	return (this->_fdPage);
 }
 
-
-// int sendHttpResponseHeader(int client_fd, const char *content_type, ssize_t content_length)
-// {
-//     char	response_header[1024];
-
-//     snprintf(response_header, sizeof(response_header),
-//              "HTTP/1.1 200 OK\r\n"
-//              "Content-Type: %s\r\n"
-//              "Content-Length: %zd\r\n\r\n",
-//              content_type, content_length);
-//     send(client_fd, response_header, strlen(response_header), 0);
-// }
-
-bool fileExists(const std::string &path)
+bool	HandleRequests::fileExists(const std::string &path)
 {
 	struct stat buffer;
 
@@ -145,8 +132,7 @@ static void sendFile(std::string filePath, std::string url, int bodySize, int cl
         close(clientFd);
         return;
     }
-	std::cout << "!!!! filePath: " << filePath << std::endl;
-    char buffer[bodySize]; // Chunk size
+    char buffer[bodySize];
     sendHttpResponseHeader(clientFd, fileSize, findContentType(url), statusCode);
     while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0)
     {
@@ -188,38 +174,4 @@ void HandleRequests::getMethods(WebServer &webServData)
 		return;
 	}
 	sendFile(this->_filePath, this->_url, this->_bodySize, this->_clientFd, "200 OK");
-	std::cout << "COUCOU !!!!" << std::endl;
 }
-
-// void	HandleRequests::getMethods()
-// {
-// 	// if 127.0.0.1::8080, send facebook html, if 8081 twitter html
-// 	this->_fdPage = open("public/html/index.html", O_RDONLY); // index
-// 	if (this->_fdPage < 0)
-// 	{
-// 		perror("File open error");
-// 		close(this->_clientFd);
-// 	}
-
-// 	this->_url = this->_request.substr(4, this->_request.find(' ', 4) - 4);
-// 	std::cout << "ICI URL : " << this->_url << std::endl;
-
-// 	this->_rootDir = "/home/rdendonc/Documents/WebServ/memes";
-// 	this->_filePath = this->_rootDir + this->_url;
-// 	std::cout << "ICI PATH : " << this->_filePath << std::endl;
-// 	if (fileExists(this->_filePath))
-// 	{
-// 		std::cout << this->_filePath << std::endl;
-// 		std::cout << "LE FICHIER EXISTE" << std::endl;
-// 		std::string contentType = findContentType();
-// 	}
-// 	else
-// 		std::cout << "LE FICHIER EXISTE PAS :(" << std::endl;
-// 	this->_bytes = read(this->_fdPage, this->_bufferPage, sizeof(this->_bufferPage) - 1);
-// 	if (this->_bytes > 0)
-// 	{
-// 		sendHttpResponseHeader(this->_clientFd, "text/html", this->_bytes);
-// 		send(this->_clientFd, this->_bufferPage, this->_bytes, 0);
-// 	}
-// 	close(this->_fdPage);
-// }

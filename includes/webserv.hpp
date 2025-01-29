@@ -29,6 +29,8 @@
 #include "../class/Config.hpp"
 #include "../class/WebServer.hpp"
 
+#define CHUNK_SIZE 4096
+
 class WebServer;
 
 // SOCKET PART
@@ -42,10 +44,10 @@ void	make_socket_nonblocking(int sockfd); // litteral
 char *ft_call_cgi(char *ans);
 
 // HTTP PART
-void	postMethods(std::string buffer);
-void	getMethods(int clientFd, ssize_t bytes);
-int		handle_request(int client_fd);
-void	send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
-int sendHttpResponseHeader(int clientFd, size_t contentLength, const std::string &contentType, const std::string &statusCode);
+void		postMethods(std::string buffer);
+void		getMethods(int clientFd, ssize_t bytes);
+int			handle_request(int client_fd);
+void		send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
+int 		sendHttpResponseHeader(int clientFd, size_t contentLength, const std::string &contentType, const std::string &statusCode);
 std::string	findContentType(std::string url);
 #endif
