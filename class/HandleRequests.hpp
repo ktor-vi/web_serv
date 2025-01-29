@@ -25,9 +25,8 @@ class HandleRequests
 		int 		sendHttpResponseHeader(size_t contentLength, const std::string& contentType, const std::string &statusCode);
 		void		initInfos(WebServer &webServData);
 		void		getMethods(WebServer &webServData);
-
-		// postMethod.cpp
-		void	postMethods(WebServer &webServerData);
+void		postMethods(WebServer &webServData);
+		std::string	createBuffer(int clientFd);
 
 	private:
 		int			_clientFd;
