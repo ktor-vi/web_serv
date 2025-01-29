@@ -142,13 +142,7 @@ static void sendFile(std::string filePath, std::string url, int bodySize, int cl
 
 void	HandleRequests::initInfos(WebServer &webServData)
 {
-	this->_fdPage = openIndex(webServData);
-	if (this->_fdPage < 0)
-	{
-		perror("File open error");
-		close(this->_clientFd);
-		return;
-	}
+	this->_bodySize = webServData.getBodySize(this->_port);
 	this->_url = this->_request.substr(4, this->_request.find(' ', 4) - 4);
 	this->_rootUrl = this->_url.substr(0, this->_url.find_last_of("/") + 1);
 	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);

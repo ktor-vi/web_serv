@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test POST Upload</title>
+</head>
+<body>
+    <h2>Tester l'envoi d'un fichier via POST</h2>
+    <input type="file" id="fileInput">
+    <button onclick="sendFile()">Envoyer</button>
+
+    <script>
+        function sendFile() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                alert("Veuillez sélectionner un fichier.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            fetch("http://localhost:8080/post/", { // URL pour tester (tu peux changer)
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => console.log("Réponse du serveur :", data))
+            .catch(error => console.error("Erreur :", error));
+        }
+    </script>
+</body>
+</html>

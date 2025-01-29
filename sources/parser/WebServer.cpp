@@ -243,6 +243,19 @@ std::string WebServer::getServerName(int port) {
   return this->servers[index].server_name;
 }
 
+int WebServer::getBodySize(int port) {
+  int index = 0;
+  std::vector<Server>::const_iterator it;
+  std::vector<Server>::const_iterator ite = servers.end();
+  for (it = servers.begin(); it != ite; it++) {
+    if(port == it->listen)
+      break;
+    index++;
+  }
+
+
+  return this->servers[index].body_size;
+}
 std::string WebServer::getErrorPagePath(int port, int error_code) {
   int index = 0;
   std::vector<Server>::const_iterator it;

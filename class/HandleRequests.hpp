@@ -25,8 +25,7 @@ class HandleRequests
 		int 		sendHttpResponseHeader(size_t contentLength, const std::string& contentType, const std::string &statusCode);
 		void		initInfos(WebServer &webServData);
 		void		getMethods(WebServer &webServData);
-void		postMethods(WebServer &webServData);
-		std::string	createBuffer(int clientFd);
+		void		postMethods(WebServer &webServData);
 
 	private:
 		int			_clientFd;
@@ -37,7 +36,9 @@ void		postMethods(WebServer &webServData);
 		size_t 		_bytes;
 		int			_fdPage;
 		std::string	_filePath;
+		std::string	_fileName;
 		int 		_bodySize;
+		int 		_bytesRead;
 		std::string	_rootDir;
 		std::string	_url;
 		std::string _rootUrl;

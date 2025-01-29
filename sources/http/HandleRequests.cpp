@@ -33,6 +33,7 @@ std::string	HandleRequests::createBuffer(int clientFd)
 	char		*buffer = new char[CHUNK_SIZE];
 	size_t		bytesRead;
 	std::string	totalData;
+	int 		flag = -4;
 
 	while (true)
 	{
@@ -41,8 +42,8 @@ std::string	HandleRequests::createBuffer(int clientFd)
 		if (bytesRead > 0)
 		{
 			totalData += std::string(buffer, bytesRead);
-			std::cout << "Chunk received (" << bytesRead << " bytes): " << std::string(buffer, bytesRead) << "\n";
-			if (totalData.find("\r\n\r\n") != std::string::npos)
+			// std::cout << "Chunk received (" << bytesRead << " bytes): " << std::string(buffer, bytesRead) << "\n";
+			if(bytesRead < CHUNK_SIZE -1)
 				break;
 		}
 		else if (bytesRead == 0)
@@ -55,10 +56,10 @@ std::string	HandleRequests::createBuffer(int clientFd)
 			delete[] buffer;
 			throw (std::out_of_range("recv"));
 		}
-		std::cout << "Total data received:\n" << totalData << "\n";
+		// std::cout << "Total data received:\n" << totalData << "\n";
 	}
 	delete[] buffer;
-	this->_bodySize = bytesRead;
+	this->_bytesRead = bytesRead;
 	return (totalData);
 }
 

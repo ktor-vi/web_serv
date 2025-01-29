@@ -37,7 +37,7 @@ void	ft_setup_socket(int *server_fd, int port, int epoll_fd, struct epoll_event 
 	ptr->data.fd = *server_fd;
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, *server_fd, ptr) == -1)
 		perror("EPOLL_CTL ERROR"), exit(1);
-	printf("SERVER ON 127.0.0.1:%d IS ONLINE\n", port);
+	std::cout << "SERVER ON 127.0.0.1: " << port << " IS ONLINE\n";
 }
 
 void ft_setup_all_socket(WebServer &data, int epoll_fd, struct epoll_event *ptr)
