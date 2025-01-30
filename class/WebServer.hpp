@@ -8,6 +8,7 @@ class WebServer {
 
 private:
   std::vector<Server> servers;
+  std::map<int, std::string>  serverNames;
 
 public:
   WebServer(Config &conf);

@@ -87,63 +87,59 @@ std::string	findContentType(std::string url) // comment ca se fait que les gifs 
 // 	 std::ifstream	file(this->_filePath, std::ios::binary | std::ios::ate);
 // }
 
-int sendHttpResponseHeader(int clientFd, size_t contentLength, const std::string &contentType, const std::string &statusCode)
+static std::string sendGetResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
 {
-    std::ostringstream headerStream;
-    headerStream << "HTTP/1.1 " << statusCode << " \r\n";
-    headerStream << "Content-Type: " << contentType << "\r\n";
-    headerStream << "Content-Length: " << contentLength << "\r\n";
-    headerStream << "Connection: keep-alive\r\n";
-    headerStream << "\r\n";
-    std::string header = headerStream.str();
+	std::ostringstream headerStream;
 
-    // Send the header
-    send(clientFd, header.c_str(), header.size(), 0);
-    return header.size();
+	headerStream << "HTTP/1.1 " << statusCode << " \r\n";
+	headerStream << "Content-Type: " << contentType << "\r\n";
+	headerStream << "Content-Length: " << contentLength << "\r\n";
+	headerStream << "Connection: keep-alive\r\n";
+	headerStream << "\r\n";
+	std::string header = headerStream.str();
+
+	return header.c_str();
 }
 
-static void sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode)
+void HandleRequests::sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode)
 {
+	size_t	fileSize = 0;
+	char	buffer[bodySize];
+	char	sizeBuffer[bodySize];
+	ssize_t	bytesRead;
+
 	int fd = open(filePath.c_str(), O_RDONLY);
-    if (fd < 0)
-    {
-        perror("File does not exist");
-        return;
-    }
-    size_t fileSize = 0;
-    char sizeBuffer[bodySize];
-    ssize_t bytesRead;
-    while ((bytesRead = read(fd, sizeBuffer, sizeof(sizeBuffer))) > 0)
-    {
-        fileSize += bytesRead;
-    }
-    if (bytesRead < 0)
-    {
-        perror("Error reading file to determine size");
-        close(fd);
-        close(clientFd);
-        return;
-    }
-    close(fd);
-    fd = open(filePath.c_str(), O_RDONLY);
-    if (fd < 0)
-    {
-        perror("File reopen error");
-        close(clientFd);
-        return;
-    }
-    char buffer[bodySize];
-    sendHttpResponseHeader(clientFd, fileSize, findContentType(url), statusCode);
-    while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0)
-    {
-        send(clientFd, buffer, bytesRead, 0);
-    }
-    close(fd);}
+	if (fd < 0)
+			throw(std::out_of_range("file doesn't exist"));
+	while ((bytesRead = read(fd, sizeBuffer, sizeof(sizeBuffer))) > 0)
+		fileSize += bytesRead;
+	if (bytesRead < 0)
+	{
+		perror("Error reading file to determine size");
+		close(fd);
+		close(clientFd);
+		return;
+	}
+	close(fd);
+	fd = open(filePath.c_str(), O_RDONLY);
+	if (fd < 0)
+	{
+		perror("File reopen error");
+		close(clientFd);
+		return;
+	}
+	std::string fullResponse = sendGetResponseHeader(fileSize, findContentType(url), statusCode);
+	while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0)
+		fullResponse.append(buffer, bytesRead);
+	if (fullResponse.length() > _header.length())
+		send(clientFd, fullResponse.c_str(), fullResponse.length(), 0);
+	close(fd);
+}
 
 void	HandleRequests::initInfos(WebServer &webServData)
 {
 	this->_bodySize = webServData.getBodySize(this->_port);
-	this->_url = this->_request.substr(4, this->_request.find(' ', 4) - 4);
+	this->_url = this->buffer.substr(4, this->buffer.find(' ', 4) - 4);
 	this->_rootUrl = this->_url.substr(0, this->_url.find_last_of("/") + 1);
 	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
 	if (this->_url[this->_url.length() - 1] == '/')
