@@ -66,13 +66,13 @@ HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd
 {
 	try
 	{
-		this->buffer = createBuffer(clientFd);
-		this->_port = getPort(this->buffer);
-		this->buffer = this->buffer;
-		int	method = whichMethod(this->buffer);
+		this->_buffer = createBuffer(clientFd);
+		this->_port = getPort(this->_buffer);
+		this->_buffer = this->_buffer;
+		int	method = whichMethod(this->_buffer);
 		if (method > 0)
 		{
-			std::cout << "<<< HTTP REQUEST RECEIVED >>>" << std::endl << this->buffer << std::endl;
+			std::cout << "<<< HTTP REQUEST RECEIVED >>>" << std::endl << this->_buffer << std::endl;
 			switch(method)
 			{
 				case 1:

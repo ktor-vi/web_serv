@@ -17,11 +17,9 @@ class HandleRequests
 		
 		// getMethod.cpp
 		bool		fileExists(const std::string &path);
-		// bool		endsWith(const std::string &url, const std::string &suffix);
 		int			openIndex(WebServer &webServData);
 		std::string findFolder(std::string url);
 		std::string	findRoot(std::string contentType);
-		// std::string	findContentType(std::string url);
 		void 		sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode);		void		initInfos(WebServer &webServData);
 		void		getMethods(WebServer &webServData);
 		void		postMethods(WebServer &webServData);
@@ -29,7 +27,7 @@ class HandleRequests
 	private:
 		int					_clientFd;
 		WebServer 			&_webServData;
-		std::string			buffer;
+		std::string			_buffer;
 		int					_fdPage;
 		std::string			_filePath;
 		std::string			_fileName;

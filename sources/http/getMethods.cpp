@@ -139,7 +139,7 @@ void HandleRequests::sendFile(std::string filePath, std::string url, int bodySiz
 void	HandleRequests::initInfos(WebServer &webServData)
 {
 	this->_bodySize = webServData.getBodySize(this->_port);
-	this->_url = this->buffer.substr(4, this->buffer.find(' ', 4) - 4);
+	this->_url = this->_buffer.substr(4, this->_buffer.find(' ', 4) - 4);
 	this->_rootUrl = this->_url.substr(0, this->_url.find_last_of("/") + 1);
 	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
 	if (this->_url[this->_url.length() - 1] == '/')
