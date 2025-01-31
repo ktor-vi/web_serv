@@ -40,31 +40,6 @@ std::string HandleRequests::findFolder(std::string url)
 	return (type);
 }
 
-std::string	HandleRequests::findRoot(std::string contentType)
-{
-	int	i = 0;
-	std::string	types[3] = {"img", "css", "other"};
-	std::string	root;
-
-	while (i < 4 && types[i] != contentType)
-		i++;
-	switch(i)
-	{
-		case 0:
-			root = this->_webServData.getRootPath(8080, "/images/");
-			break ;
-		case 1:
-			root = "/home/rdendonc/Documents/WebServ/public/css";
-			break ;
-		case 2:
-			root = "/home/rdendonc/Documents/WebServ/public/html";
-			break ;
-		default:
-			std::cout << " root" << std::endl;
-	}
-	return (root);
-}
-
 std::string	findContentType(std::string url) // comment ca se fait que les gifs passent ??
 {
 	std::string	contentType;

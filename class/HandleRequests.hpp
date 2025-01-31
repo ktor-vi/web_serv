@@ -19,7 +19,6 @@ class HandleRequests
 		bool		fileExists(const std::string &path);
 		int			openIndex(WebServer &webServData);
 		std::string findFolder(std::string url);
-		std::string	findRoot(std::string contentType);
 		void 		sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode);		
 		void		initGetInfos(WebServer &webServData);
 		void		initPostInfos(WebServer &webServData);
