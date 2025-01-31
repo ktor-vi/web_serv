@@ -36,14 +36,14 @@ void HandleRequests::postMethod(WebServer &webServData)
     	size_t body_start = header_end + 4;  
     	size_t file_data_start = this->_buffer.find("\r\n\r\n", body_start);
     	if (file_data_start != std::string::npos)
-        	file_data_start += 4; 
+    		file_data_start += 4; 
     	std::string body = this->_buffer.substr(file_data_start);
-			write(fileFd, body.c_str(), body.length());
+		write(fileFd, body.c_str(), body.length());
 	}
 	std::ifstream file(this->_filePath.c_str(), std::ios::binary);
-    std::ostringstream content;
-    content << file.rdbuf();
-    file.close();
-    this->_response = createPostResponseHeader(content.str().size(), findContentType(this->_filePath), "200 OK") + content.str();
+	std::ostringstream content;
+	content << file.rdbuf();
+	file.close();
+	this->_response = createPostResponseHeader(content.str().size(), findContentType(this->_filePath), "200 OK") + content.str();
 	return ;
 }
