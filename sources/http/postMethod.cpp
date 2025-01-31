@@ -6,6 +6,21 @@ void HandleRequests::initPostInfos(WebServer &webServData)
 	this->_fileName = this->_buffer.substr(this->_buffer.find("filename=\"") + 10, this->_buffer.find("\"", this->_buffer.find("filename=\"") + 10) - this->_buffer.find("filename=\"") - 10);
 	this->_filePath = this->_rootDir + this->_fileName;
 }
+
+static std::string createPostResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
+{
+	std::ostringstream headerStream;
+
+	headerStream << "HTTP/1.1 " << statusCode << " \r\n";
+	headerStream << "Content-Type: " << contentType << "\r\n";
+	headerStream << "Content-Length: " << contentLength << "\r\n";
+	headerStream << "Connection: keep-alive\r\n";
+	headerStream << "\r\n";
+	std::string header = headerStream.str();
+
+	return header.c_str();
+}
+
 void HandleRequests::postMethod(WebServer &webServData)
 {
 	initPostInfos(webServData);
@@ -25,6 +40,10 @@ void HandleRequests::postMethod(WebServer &webServData)
     	std::string body = this->_buffer.substr(file_data_start);
 			write(fileFd, body.c_str(), body.length());
 	}
-	// sendResponse
+	std::ifstream file(this->_filePath.c_str(), std::ios::binary);
+    std::ostringstream content;
+    content << file.rdbuf();
+    file.close();
+    this->_response = createPostResponseHeader(content.str().size(), findContentType(this->_filePath), "200 OK") + content.str();
 	return ;
 }

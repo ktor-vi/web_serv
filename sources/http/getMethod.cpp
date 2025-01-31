@@ -58,7 +58,7 @@ std::string	findContentType(std::string url) // comment ca se fait que les gifs 
 }
 
 
-static std::string sendGetResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
+static std::string createGetResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
 {
 	std::ostringstream headerStream;
 
@@ -84,18 +84,18 @@ void	HandleRequests::initGetInfos(WebServer &webServData)
 
 void HandleRequests::getMethod(WebServer &webServData)
 {
-    initGetInfos(webServData);
+	initGetInfos(webServData);
 
-    if (access(this->_filePath.c_str(), R_OK) != 0)
-    {
-        this->_response = sendGetResponseHeader(0, "text/html", "404 Not Found");
-        return;
-    }
+	if (access(this->_filePath.c_str(), R_OK) != 0)
+	{
+		this->_response = createGetResponseHeader(0, "text/html", "404 Not Found");
+		return;
+	}
 
-    std::ifstream file(this->_filePath.c_str(), std::ios::binary);
-    std::ostringstream content;
-    content << file.rdbuf();
-    file.close();
+	std::ifstream file(this->_filePath.c_str(), std::ios::binary);
+	std::ostringstream content;
+	content << file.rdbuf();
+	file.close();
 
-    this->_response = sendGetResponseHeader(content.str().size(), findContentType(this->_filePath), "200 OK") + content.str();
+	this->_response = createGetResponseHeader(content.str().size(), findContentType(this->_filePath), "200 OK") + content.str();
 }
