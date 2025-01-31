@@ -9,6 +9,8 @@ class WebServer {
 private:
   std::vector<Server> servers;
   std::map<int, std::string>  serverNames;
+  std::map<int, std::string> responseBuffer; // Associe un client_fd à sa réponse
+
 
 public:
   WebServer(Config &conf);
@@ -31,6 +33,10 @@ public:
   std::string 			         		getDirDefaultPath(int port, std::string location_path);
   std::pair<bool, std::string> 	getCGIDepends(int port, std::string location_path);
   const std::vector<Server> 		&getServers() const;
+  std::string                   getResponseBuffer(int fd);
+  void                          setResponseBuffer(int fd, std::string buffer);
+  bool                          responseBufferAbsent(int client_fd);
+  void                          eraseResponseBuffer(int client_fd);
 };
 
 #endif

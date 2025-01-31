@@ -32,40 +32,15 @@ static int getPort(std::string req) /*par rapport a la requete actuelle*/
 	return port;
 }
 
-std::string HandleRequests::createBuffer(int clientFd)
+void 	HandleRequests::setBuffer(std::string buffer)
 {
-	size_t bufferSize = CHUNK_SIZE;
-	char *buffer = new char[CHUNK_SIZE];
-	size_t bytesRead;
-	std::string totalData;
-
-	while (true)
-	{
-		memset(buffer, 0, bufferSize);
-		bytesRead = recv(clientFd, buffer, bufferSize - 1, 0); // read equivalent
-		if (bytesRead > 0)
-		{
-			totalData += std::string(buffer, bytesRead);
-			// std::cout << "Chunk received (" << bytesRead << " bytes): " << std::string(buffer, bytesRead) << "\n";
-			if (bytesRead < CHUNK_SIZE - 1)
-				break;
-		}
-		else if (bytesRead == 0)
-		{
-			std::cout << "Client deco ??" << std::endl;
-			break;
-		}
-		else if (bytesRead <= 0)
-		{
-			delete[] buffer;
-			throw(std::out_of_range("recv"));
-		}
-		// std::cout << "Total data received:\n" << totalData << "\n";
-	}
-	delete[] buffer;
-	this->_bytesRead = bytesRead;
-	return (totalData);
+	this->_buffer = buffer;
 }
+void 	HandleRequests::setBytesRead(int bytes_read)
+{
+	this->_bytesRead = bytes_read;
+}
+
 
 void HandleRequests::initURLs(WebServer &webServData)
 {
@@ -90,11 +65,10 @@ void HandleRequests::initURLs(WebServer &webServData)
 		}
 	}
 }
-HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd(clientFd), _webServData(webServData)
+HandleRequests::HandleRequests(std::string request ,WebServer &webServData) : _buffer(request), _webServData(webServData)
 {
 	try
 	{
-		this->_buffer = createBuffer(clientFd);
 		this->_port = getPort(this->_buffer);
 		initURLs(webServData);
 		if (webServData.getCGIStatus(this->_port, this->_rootUrl))
@@ -124,7 +98,9 @@ HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd
 		std::cerr << "Error: " << e.what() << std::endl;
 	}
 }
-
+std::string HandleRequests::getResponse() const{
+	return this->_response;
+}
 HandleRequests::~HandleRequests()
 {
 	// Ajoutez ici tout code nécessaire à la libération des ressources.

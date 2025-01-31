@@ -82,10 +82,6 @@ std::string	findContentType(std::string url) // comment ca se fait que les gifs 
 	return (contentType);
 }
 
-// std::string	getFileSize(void)
-// {
-// 	 std::ifstream	file(this->_filePath, std::ios::binary | std::ios::ate);
-// }
 
 static std::string sendGetResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
 {
@@ -101,41 +97,6 @@ static std::string sendGetResponseHeader(size_t contentLength, const std::string
 	return header.c_str();
 }
 
-void HandleRequests::sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode)
-{
-	size_t	fileSize = 0;
-	char	buffer[bodySize];
-	char	sizeBuffer[bodySize];
-	ssize_t	bytesRead;
-
-	int fd = open(filePath.c_str(), O_RDONLY);
-	if (fd < 0)
-			throw(std::out_of_range("file doesn't exist"));
-	while ((bytesRead = read(fd, sizeBuffer, sizeof(sizeBuffer))) > 0)
-		fileSize += bytesRead;
-	if (bytesRead < 0)
-	{
-		perror("Error reading file to determine size");
-		close(fd);
-		close(clientFd);
-		return;
-	}
-	close(fd);
-	fd = open(filePath.c_str(), O_RDONLY);
-	if (fd < 0)
-	{
-		perror("File reopen error");
-		close(clientFd);
-		return;
-	}
-	std::string fullResponse = sendGetResponseHeader(fileSize, findContentType(url), statusCode);
-	while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0)
-		fullResponse.append(buffer, bytesRead);
-	if (fullResponse.length() > _header.length())
-		send(clientFd, fullResponse.c_str(), fullResponse.length(), 0);
-	close(fd);
-}
-
 void	HandleRequests::initGetInfos(WebServer &webServData)
 {
 	this->_bodySize = webServData.getBodySize(this->_port);
@@ -148,18 +109,18 @@ void	HandleRequests::initGetInfos(WebServer &webServData)
 
 void HandleRequests::getMethod(WebServer &webServData)
 {
-	initGetInfos(webServData);
+    initGetInfos(webServData);
 
-	if (access(this->_filePath.c_str(), R_OK) != 0)
-	{
-		sendFile(webServData.getErrorPagePath(this->_port, 404), this->_url, this->_bodySize, this->_clientFd, "404 Not Found");	
-		return;
-	}
-	std::vector<std::string> allowedMethods = webServData.getAllowedMethods(this->_port, this->_rootUrl);
-	if (std::find(allowedMethods.begin(), allowedMethods.end(), "GET") == allowedMethods.end())
-	{
-		sendFile(webServData.getErrorPagePath(this->_port, 405), this->_url, this->_bodySize, this->_clientFd, "405 Method Not Allowed");
-		return;
-	}
-	sendFile(this->_filePath, this->_url, this->_bodySize, this->_clientFd, "200 OK");
+    if (access(this->_filePath.c_str(), R_OK) != 0)
+    {
+        this->_response = sendGetResponseHeader(0, "text/html", "404 Not Found");
+        return;
+    }
+
+    std::ifstream file(this->_filePath.c_str(), std::ios::binary);
+    std::ostringstream content;
+    content << file.rdbuf();
+    file.close();
+
+    this->_response = sendGetResponseHeader(content.str().size(), findContentType(this->_filePath), "200 OK") + content.str();
 }

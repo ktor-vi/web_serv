@@ -7,7 +7,7 @@ class WebServer;
 class HandleRequests
 {
 	public:
-		HandleRequests(int clientFd, WebServer &webServData);
+		HandleRequests(std::string request, WebServer &webServData);
 		HandleRequests(const HandleRequests &copy);
 		HandleRequests	&operator=(const HandleRequests &rhs);
 		~HandleRequests(void);
@@ -26,6 +26,9 @@ class HandleRequests
 		void		getMethod(WebServer &webServData);
 		void		postMethod(WebServer &webServData);
 		void 		cgiMethods(WebServer &webServData);
+		void		setBuffer(std::string buffer);
+		void		setBytesRead(int bytes_read);
+		std::string getResponse() const;
 
 	private:
 		int					_clientFd;
@@ -41,7 +44,7 @@ class HandleRequests
 		std::string 		_rootUrl;
 		int					 _port;
 		std::string			_header;
-		std::vector<char>	_response;
+		std::string			_response;
 
 };
 
