@@ -7,14 +7,14 @@ class WebServer;
 class HandleRequests
 {
 	public:
-		HandleRequests(std::string request, WebServer &webServData);
+		HandleRequests(std::string request, WebServer &webServData, int epoll_fd, int client_fd);
 		HandleRequests(const HandleRequests &copy);
 		HandleRequests	&operator=(const HandleRequests &rhs);
 		~HandleRequests(void);
 		
 		// HandleRequests.cpp
 		std::string	createBuffer(int clientFd);
-		void 		initURLs(WebServer &webServData);
+		void 		initURLs();
 		// getMethod.cpp
 		bool		fileExists(const std::string &path);
 		int			openIndex(WebServer &webServData);
@@ -31,6 +31,7 @@ class HandleRequests
 
 	private:
 		int					_clientFd;
+		int 				_epollFd;
 		WebServer 			&_webServData;
 		std::string			_buffer;
 		int					_fdPage;

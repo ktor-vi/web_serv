@@ -10,7 +10,9 @@ private:
   std::vector<Server> servers;
   std::map<int, std::string>  serverNames;
   std::map<int, std::string> responseBuffer; // Associe un client_fd à sa réponse
-
+  std::map<int, std::string> requestBuffer; // Associe un client_fd à sa réponse
+  std::map<int, std::string> postBody; // Associe un client_fd à sa postBody
+  std::map<int, int> postFileFds;
 
 public:
   WebServer(Config &conf);
@@ -37,6 +39,13 @@ public:
   void                          setResponseBuffer(int fd, std::string buffer);
   bool                          responseBufferAbsent(int client_fd);
   void                          eraseResponseBuffer(int client_fd);
+  void                          setPostBody(int fd, std::string buffer);
+  std::string                   getPostBody(int fd);
+  void                          setPostFileFds(int fd, int file_fd);
+  int                           getPostFileFds(int fd);
+  bool                          postFileFdAbsent(int client_fd);
+  void                          removePostFileFds(int client_fd);
+  std::string&                  getRequestBuffer(int client_fd);
 };
 
 #endif

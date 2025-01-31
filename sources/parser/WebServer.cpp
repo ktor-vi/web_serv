@@ -507,4 +507,34 @@ void WebServer::eraseResponseBuffer(int client_fd)
 {
   this->responseBuffer.erase(client_fd);
 }
+std::string WebServer::getPostBody(int fd)
+{
+  return this->postBody[fd];
+}
+void WebServer::setPostBody(int fd, std::string buffer)
+{
+  this->postBody[fd] = buffer;
+}
+
+void WebServer::setPostFileFds(int fd, int file_fd)
+{
+  this->postFileFds[fd] = file_fd;
+}
+int WebServer::getPostFileFds(int fd) { return this->postFileFds[fd]; }
+bool WebServer::postFileFdAbsent(int client_fd)
+{
+  if (this->postFileFds.find(client_fd) == this->postFileFds.end())
+    return true;
+  else
+    return false;
+}
+void WebServer::removePostFileFds(int client_fd){
+  this->postFileFds.erase(client_fd);
+}
+std::string& WebServer::getRequestBuffer(int client_fd)
+{
+    // Vous pouvez utiliser un conteneur comme un std::map pour associer chaque client à son tampon de requête
+    return this->requestBuffer[client_fd];
+}
+
 WebServer::~WebServer() {}

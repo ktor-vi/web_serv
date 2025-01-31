@@ -24,64 +24,104 @@
 
 int handle_read_event(int client_fd, int epoll_fd, WebServer &data)
 {
-    char buffer[4096];
-    int bytes_read = recv(client_fd, buffer, sizeof(buffer), 0);
+	char buffer[4096];
+	size_t bytesRead;
+	std::string request;
 
-    if (bytes_read <= 0)
-    {
-        if (bytes_read == 0)
-            std::cout << "Client disconnected\n";
-        else
-            perror("RECV ERROR");
-        return -1;
-    }
+	make_socket_nonblocking(client_fd);
+	while (true)
+	{
+		memset(buffer, 0, CHUNK_SIZE);
+		bytesRead = recv(client_fd, buffer, CHUNK_SIZE - 1, 0); // read equivalent
+		if (bytesRead > 0)
+		{
+			request += std::string(buffer, bytesRead);
+			// std::cout << "Chunk received (" << bytesRead << " bytes): " << std::string(buffer, bytesRead) << "\n";
+			if (bytesRead < CHUNK_SIZE - 1)
+				break;
+		}
+		else if (bytesRead == 0)
+		{
+			std::cout << "Client deco ??" << std::endl;
+			break;
+		}
+		else if (bytesRead <= 0)
+		{
+			throw(std::out_of_range("recv"));
+		}
+		// std::cout << "Total data received:\n" << totalData << "\n";
+	}
+	HandleRequests requestHandler(request, data, epoll_fd, client_fd);
+	data.setResponseBuffer(client_fd, requestHandler.getResponse());
 
-    std::string request(buffer, bytes_read);
-    HandleRequests requestHandler(request, data); // Traite la requête
+	// Passer en mode écriture (EPOLLOUT)
+	struct epoll_event t_event;
+	t_event.events = EPOLLOUT | EPOLLET;
+	t_event.data.fd = client_fd;
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, client_fd, &t_event) == -1)
+	{
+		perror("EPOLL_CTL MOD ERROR");
+		return -1;
+	}
 
-    // Stocker la réponse dans le buffer global
-    data.setResponseBuffer(client_fd, requestHandler.getResponse()); // getResponse() doit être ajoutée
-
-    // Passer le client en mode écriture (EPOLLOUT)
-    struct epoll_event t_event;
-    t_event.events = EPOLLOUT | EPOLLET;
-    t_event.data.fd = client_fd;
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, client_fd, &t_event) == -1)
-    {
-        perror("EPOLL_CTL MOD ERROR");
-        return -1;
-    }
-    return 0;
+	// On a traité la requête, donc on arrête ici
+	return 0;
 }
 
 int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 {
-    if (data.responseBufferAbsent(client_fd))
-        return -1;
 
-    const std::string &response = data.getResponseBuffer(client_fd);
-    ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+	make_socket_nonblocking(client_fd);
+	if (!data.postFileFdAbsent(client_fd))
+	{
+		int fileFd = data.getPostFileFds(client_fd);
+		std::string body = data.getPostBody(client_fd);
+		static size_t offset = 0; // Pour suivre l'écriture
 
-    if (bytes_sent < 0)
-    {
-        perror("SEND ERROR");
-        return -1;
-    }
+		ssize_t bytes_written = write(fileFd, body.c_str() + offset, body.size() - offset);
+
+		if (bytes_written < 0)
+		{
+			perror("Write error");
+			close(fileFd);
+			data.removePostFileFds(client_fd);
+			return -1;
+		}
+
+		offset += bytes_written;
+
+		if (offset >= body.size())
+		{
+			close(fileFd);
+			data.removePostFileFds(client_fd);
+			offset = 0;
+		}
+	}
+
+	if (data.responseBufferAbsent(client_fd))
+		return -1;
+
+	const std::string &response = data.getResponseBuffer(client_fd);
+	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+
+	if (bytes_sent < 0)
+	{
+		perror("SEND ERROR");
+		return -1;
+	}
 
 	data.eraseResponseBuffer(client_fd);
-    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-    close(client_fd);
-    return 0;
+	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+	close(client_fd);
+	return 0;
 }
 
-
-void	ft_webserver(WebServer &data)
+void ft_webserver(WebServer &data)
 {
-	struct sockaddr_in	addr_client;
-	socklen_t			addr_len = sizeof(addr_client);
-	int					client_fd, epoll_fd, fds, i;
-	struct epoll_event	t_event, t_events[MAX_EVENTS];
-
+	struct sockaddr_in addr_client;
+	socklen_t addr_len = sizeof(addr_client);
+	int client_fd, epoll_fd, fds, i;
+	struct epoll_event t_event, t_events[MAX_EVENTS];
 
 	epoll_fd = epoll_create1(0); // Init epoll
 	if (epoll_fd == -1)
@@ -136,4 +176,3 @@ void	ft_webserver(WebServer &data)
 		}
 	}
 }
-

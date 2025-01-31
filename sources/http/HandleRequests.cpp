@@ -42,8 +42,9 @@ void 	HandleRequests::setBytesRead(int bytes_read)
 }
 
 
-void HandleRequests::initURLs(WebServer &webServData)
+void HandleRequests::initURLs()
 {
+
 	int method = whichMethod(this->_buffer);
 	if (method > 0)
 	{
@@ -65,12 +66,12 @@ void HandleRequests::initURLs(WebServer &webServData)
 		}
 	}
 }
-HandleRequests::HandleRequests(std::string request ,WebServer &webServData) : _buffer(request), _webServData(webServData)
+HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int epoll_fd, int client_fd) : _clientFd(client_fd), _epollFd(epoll_fd),  _webServData(webServData), _buffer(request)
 {
 	try
 	{
 		this->_port = getPort(this->_buffer);
-		initURLs(webServData);
+		initURLs();
 		if (webServData.getCGIStatus(this->_port, this->_rootUrl))
 			cgiMethods(webServData);	
 		int method = whichMethod(this->_buffer);
@@ -101,6 +102,7 @@ HandleRequests::HandleRequests(std::string request ,WebServer &webServData) : _b
 std::string HandleRequests::getResponse() const{
 	return this->_response;
 }
+
 HandleRequests::~HandleRequests()
 {
 	// Ajoutez ici tout code nécessaire à la libération des ressources.
