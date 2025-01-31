@@ -14,15 +14,18 @@ class HandleRequests
 		
 		// HandleRequests.cpp
 		std::string	createBuffer(int clientFd);
-		
+		void 		initURLs(WebServer &webServData);
 		// getMethod.cpp
 		bool		fileExists(const std::string &path);
 		int			openIndex(WebServer &webServData);
 		std::string findFolder(std::string url);
 		std::string	findRoot(std::string contentType);
-		void 		sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode);		void		initInfos(WebServer &webServData);
+		void 		sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode);		
+		void		initGetInfos(WebServer &webServData);
+		void		initPostInfos(WebServer &webServData);
 		void		getMethods(WebServer &webServData);
 		void		postMethods(WebServer &webServData);
+		void 		cgiMethods(WebServer &webServData);
 
 	private:
 		int					_clientFd;

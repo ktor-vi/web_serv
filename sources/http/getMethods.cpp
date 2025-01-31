@@ -136,11 +136,9 @@ void HandleRequests::sendFile(std::string filePath, std::string url, int bodySiz
 	close(fd);
 }
 
-void	HandleRequests::initInfos(WebServer &webServData)
+void	HandleRequests::initGetInfos(WebServer &webServData)
 {
 	this->_bodySize = webServData.getBodySize(this->_port);
-	this->_url = this->_buffer.substr(4, this->_buffer.find(' ', 4) - 4);
-	this->_rootUrl = this->_url.substr(0, this->_url.find_last_of("/") + 1);
 	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
 	if (this->_url[this->_url.length() - 1] == '/')
 		this->_filePath = this->_rootDir + "/index.html";
@@ -150,7 +148,7 @@ void	HandleRequests::initInfos(WebServer &webServData)
 
 void HandleRequests::getMethods(WebServer &webServData)
 {
-	initInfos(webServData);
+	initGetInfos(webServData);
 
 	if (access(this->_filePath.c_str(), R_OK) != 0)
 	{
