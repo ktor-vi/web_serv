@@ -108,11 +108,11 @@ HandleRequests::HandleRequests(int clientFd, WebServer &webServData) : _clientFd
 			{
 			case 1:
 				std::cout << "[GET method asked]" << std::endl;
-				getMethods(webServData);
+				getMethod(webServData);
 				break;
 			case 2:
 				std::cout << "[POST method asked]" << std::endl;
-				postMethods(webServData);
+				postMethod(webServData);
 				break;
 			default:
 				break;

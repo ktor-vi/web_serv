@@ -146,7 +146,7 @@ void	HandleRequests::initGetInfos(WebServer &webServData)
 		this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
 }
 
-void HandleRequests::getMethods(WebServer &webServData)
+void HandleRequests::getMethod(WebServer &webServData)
 {
 	initGetInfos(webServData);
 
