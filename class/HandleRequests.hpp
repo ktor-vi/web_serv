@@ -12,23 +12,25 @@ class HandleRequests
 		HandleRequests	&operator=(const HandleRequests &rhs);
 		~HandleRequests(void);
 		
-		// HandleRequests.cpp
-		std::string	createBuffer(int clientFd);
-		void 		initURLs();
-		// getMethod.cpp
-		bool		fileExists(const std::string &path);
-		int			openIndex(WebServer &webServData);
-		std::string findFolder(std::string url);
-		void 		sendFile(std::string filePath, std::string url, int bodySize, int clientFd, std::string statusCode);		
-		void		initGetInfos(WebServer &webServData);
-		void		initPostInfos(WebServer &webServData);
-		void		getMethod(WebServer &webServData);
-		void		postMethod(WebServer &webServData);
+		// cgiMethods.cpp
 		void 		cgiMethods(WebServer &webServData);
+		
+		// getMethod.cpp
+		std::string findFolder(std::string url);
+		void		initGetInfos(WebServer &webServData);
+		void		getMethod(WebServer &webServData);
+
+		// postMethod.cpp
+		void	createPostResponse(void);
+
+		// HandleRequests.cpp
+		void		initPostInfos(WebServer &webServData);
 		void		setBuffer(std::string buffer);
 		void		setBytesRead(int bytes_read);
-		std::string getResponse() const;
-
+		void 		initURLs();
+		std::string	getResponse() const;
+		void		postMethod(WebServer &webServData);
+		
 	private:
 		int					_clientFd;
 		int 				_epollFd;

@@ -1,20 +1,20 @@
 #include "../../includes/webserv.hpp"
 
-int		HandleRequests::openIndex(WebServer &webServData)
-{
-	std::string	index = webServData.getIndexPath(webServData.getPort(0) , "/");
-	this->_fdPage = open(index.c_str(), O_RDONLY); // index
-	return (this->_fdPage);
-}
+// int		HandleRequests::openIndex(WebServer &webServData)
+// {
+// 	std::string	index = webServData.getIndexPath(webServData.getPort(0) , "/");
+// 	this->_fdPage = open(index.c_str(), O_RDONLY); // index
+// 	return (this->_fdPage);
+// }
 
-bool	HandleRequests::fileExists(const std::string &path)
-{
-	struct stat buffer;
+// bool	HandleRequests::fileExists(const std::string &path)
+// {
+// 	struct stat buffer;
 
-	if (stat(path.c_str(), &buffer) == 0)
-		return (true);
-	return (false);
-}
+// 	if (stat(path.c_str(), &buffer) == 0)
+// 		return (true);
+// 	return (false);
+// }
 
 bool	endsWith(const std::string &url, const std::string &suffix)
 {
@@ -40,6 +40,30 @@ std::string HandleRequests::findFolder(std::string url)
 	return (type);
 }
 
+void	HandleRequests::initGetInfos(WebServer &webServData)
+{
+	this->_bodySize = webServData.getBodySize(this->_port);
+	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
+	if (this->_url[this->_url.length() - 1] == '/')
+		this->_filePath = this->_rootDir + "/index.html";
+	else
+		this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
+}
+
+static std::string createGetResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
+{
+	std::ostringstream headerStream;
+
+	headerStream << "HTTP/1.1 " << statusCode << " \r\n";
+	headerStream << "Content-Type: " << contentType << "\r\n";
+	headerStream << "Content-Length: " << contentLength << "\r\n";
+	headerStream << "Connection: keep-alive\r\n";
+	headerStream << "\r\n";
+	std::string header = headerStream.str();
+
+	return (header.c_str)();
+}
+
 std::string	findContentType(std::string url) // comment ca se fait que les gifs passent ??
 {
 	std::string	contentType;
@@ -55,31 +79,6 @@ std::string	findContentType(std::string url) // comment ca se fait que les gifs 
 	else if(endsWith(url, ".ico")) 
 		contentType = "images/ico";
 	return (contentType);
-}
-
-
-static std::string createGetResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
-{
-	std::ostringstream headerStream;
-
-	headerStream << "HTTP/1.1 " << statusCode << " \r\n";
-	headerStream << "Content-Type: " << contentType << "\r\n";
-	headerStream << "Content-Length: " << contentLength << "\r\n";
-	headerStream << "Connection: keep-alive\r\n";
-	headerStream << "\r\n";
-	std::string header = headerStream.str();
-
-	return header.c_str();
-}
-
-void	HandleRequests::initGetInfos(WebServer &webServData)
-{
-	this->_bodySize = webServData.getBodySize(this->_port);
-	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
-	if (this->_url[this->_url.length() - 1] == '/')
-		this->_filePath = this->_rootDir + "/index.html";
-	else
-		this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
 }
 
 void HandleRequests::getMethod(WebServer &webServData)

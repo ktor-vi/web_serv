@@ -66,6 +66,11 @@ void HandleRequests::initURLs()
 		}
 	}
 }
+
+std::string HandleRequests::getResponse() const{
+	return this->_response;
+}
+
 HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int epoll_fd, int client_fd) : _clientFd(client_fd), _epollFd(epoll_fd),  _webServData(webServData), _buffer(request)
 {
 	try
@@ -98,9 +103,6 @@ HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int 
 	{
 		std::cerr << "Error: " << e.what() << std::endl;
 	}
-}
-std::string HandleRequests::getResponse() const{
-	return this->_response;
 }
 
 HandleRequests::~HandleRequests()
