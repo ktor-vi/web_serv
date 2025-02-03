@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test POST Upload</title>
+    <title>Test POST & DELETE Upload</title>
 </head>
 <body>
     <h2>Tester l'envoi d'un fichier via POST</h2>
     <input type="file" id="fileInput">
     <button onclick="sendFile()">Envoyer</button>
+
+    <h2>Supprimer un fichier via DELETE</h2>
+    <input type="text" id="fileName" placeholder="Nom du fichier à supprimer">
+    <button onclick="deleteFile()">Supprimer</button>
 
     <script>
         function sendFile() {
@@ -21,12 +25,27 @@
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
 
-            fetch("http://localhost:8080/post/", { // URL pour tester (tu peux changer)
+            fetch("http://localhost:8080/uploads/", { // URL où POST envoie les fichiers
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => response.text()) // Si ton serveur ne renvoie pas du JSON, utilise .text()
             .then(data => console.log("Réponse du serveur :", data))
+            .catch(error => console.error("Erreur :", error));
+        }
+
+        function deleteFile() {
+            const fileName = document.getElementById('fileName').value.trim();
+            if (fileName === "") {
+                alert("Veuillez entrer un nom de fichier.");
+                return;
+            }
+
+            fetch(`http://localhost:8080/uploads/${fileName}`, { // URL DELETE ciblant le fichier
+                method: "DELETE"
+            })
+            .then(response => response.text()) // Adapter en fonction de la réponse du serveur
+            .then(data => console.log("Fichier supprimé :", data))
             .catch(error => console.error("Erreur :", error));
         }
     </script>

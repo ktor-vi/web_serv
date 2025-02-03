@@ -15,13 +15,17 @@ class HandleRequests
 		// cgiMethods.cpp
 		void 		cgiMethods(WebServer &webServData);
 		
+		// deleteMethod.cpp
+		void		deleteMethod(WebServer &webServData);
+
 		// getMethod.cpp
 		std::string findFolder(std::string url);
 		void		initGetInfos(WebServer &webServData);
 		void		getMethod(WebServer &webServData);
 
 		// postMethod.cpp
-		void	createPostResponse(void);
+		void		getUploadsLocation(WebServer &webServData);
+		void		createPostResponse(void);
 
 		// HandleRequests.cpp
 		void		initPostInfos(WebServer &webServData);
@@ -47,6 +51,7 @@ class HandleRequests
 		int					 _port;
 		std::string			_header;
 		std::string			_response;
+		std::string			_uploadsLocations;
 
 };
 

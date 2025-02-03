@@ -94,6 +94,10 @@ HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int 
 				std::cout << "[POST method asked]" << std::endl;
 				postMethod(webServData);
 				break;
+			case 3:
+				std::cout << "[DELETE method asked]" << std::endl;
+				deleteMethod(webServData);
+				break;
 			default:
 				break;
 			}
