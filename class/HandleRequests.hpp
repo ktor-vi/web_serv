@@ -16,6 +16,7 @@ class HandleRequests
 		void 		cgiMethods(WebServer &webServData);
 		
 		// deleteMethod.cpp
+		void		initDeleteInfos(WebServer &webServData);
 		void		deleteMethod(WebServer &webServData);
 
 		// getMethod.cpp

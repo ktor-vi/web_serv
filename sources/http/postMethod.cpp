@@ -5,6 +5,9 @@ void HandleRequests::initPostInfos(WebServer &webServData)
 	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
 	this->_fileName = this->_buffer.substr(this->_buffer.find("filename=\"") + 10, this->_buffer.find("\"", this->_buffer.find("filename=\"") + 10) - this->_buffer.find("filename=\"") - 10);
 	this->_filePath = this->_rootDir + this->_fileName;
+	std::cout << "COUCOU 1a !! [" << this->_fileName << "]" << std::endl;
+	std::cout << "COUCOU 2b !! [" << this->_filePath << "]" << std::endl;
+	std::cout << "COUCOU 3c !! [" << this->_rootDir << "]" << std::endl;
 }
 
 static std::string createPostResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)

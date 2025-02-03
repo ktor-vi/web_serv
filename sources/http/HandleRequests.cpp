@@ -16,7 +16,6 @@ static int whichMethod(std::string str)
 static int getPort(std::string req) /*par rapport a la requete actuelle*/
 {
 	int start = req.find("Host:");
-	std::cout << "GETPORT" << std::endl;
 	int line_start = start + 5;
 	while (req[line_start] == ' ')
 	{
