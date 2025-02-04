@@ -10,9 +10,6 @@ void HandleRequests::initDeleteInfos(WebServer &webServData)
 	if (slashPos != std::string::npos)
 		this->_fileName = this->_fileName.substr(slashPos + 1);
 	this->_filePath = this->_rootDir + this->_fileName;
-	std::cout << "COUCOU 1 !! [" << this->_fileName << "]" << std::endl;
-	std::cout << "COUCOU 2 !! [" << this->_filePath << "]" << std::endl;
-	std::cout << "COUCOU 3 !! [" << this->_rootDir << "]" << std::endl;
 }
 
 static std::string createDeleteResponseHeader(const std::string &statusCode)
@@ -26,20 +23,37 @@ static std::string createDeleteResponseHeader(const std::string &statusCode)
     return headerStream.str();
 }
 
+bool	HandleRequests::isADirectory(std::string path)
+{
+	struct stat	info;
+	if (stat(path.c_str(), &info) != 0) {
+		return false;
+	}
+	return (info.st_mode & S_IFDIR) != 0;
+}
+
 void HandleRequests::deleteMethod(WebServer &webServData)
 {
 	initDeleteInfos(webServData);
-
+	std::cout << "_filePath = " << this->_filePath << std::endl;
+	std::cout << "_fileName = " << this->_fileName << std::endl;
 	if (access(this->_filePath.c_str(), F_OK) == -1) {
 		this->_response = createDeleteResponseHeader("404 Not Found");
 		return;
 	}
-
-	if (remove(this->_filePath.c_str()) == 0)
-		this->_response = createDeleteResponseHeader("200 OK");
-	else
+	if (open(this->_filePath.c_str(), O_RDONLY) == -1)
+	{
 		this->_response = createDeleteResponseHeader("403 Forbidden");
-
+		return ;
+	}
+	bool	isDirectory = isADirectory(this->_filePath);
+	if (remove(this->_filePath.c_str()) == 0)
+	{
+		if (isDirectory == true)	
+			this->_response = createDeleteResponseHeader("204 OK");
+		else
+			this->_response = createDeleteResponseHeader("200 OK");
+	}
 	struct epoll_event event;
 	event.events = EPOLLOUT | EPOLLET;
 	event.data.fd = this->_clientFd;

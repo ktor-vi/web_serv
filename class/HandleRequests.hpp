@@ -17,6 +17,7 @@ class HandleRequests
 		
 		// deleteMethod.cpp
 		void		initDeleteInfos(WebServer &webServData);
+		bool		isADirectory(std::string path);
 		void		deleteMethod(WebServer &webServData);
 
 		// getMethod.cpp
