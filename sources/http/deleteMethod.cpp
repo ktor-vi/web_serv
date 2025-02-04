@@ -23,7 +23,7 @@ static std::string createDeleteResponseHeader(const std::string &statusCode)
     return headerStream.str();
 }
 
-bool	HandleRequests::isADirectory(std::string path)
+bool	isADirectory(std::string path)
 {
 	struct stat	info;
 	if (stat(path.c_str(), &info) != 0) {
@@ -32,11 +32,21 @@ bool	HandleRequests::isADirectory(std::string path)
 	return (info.st_mode & S_IFDIR) != 0;
 }
 
+bool	HandleRequests::isItLocked(std::string path)
+{
+	int fd = open(path.c_str(), O_RDONLY);
+	if (fd < 0)
+		return (false);
+	bool locked = flock(fd, LOCK_EX | LOCK_NB) == -1;
+	if (!locked)
+		flock(fd, LOCK_UN);
+	close (fd);
+	return (locked);
+}
+
 void HandleRequests::deleteMethod(WebServer &webServData)
 {
 	initDeleteInfos(webServData);
-	std::cout << "_filePath = " << this->_filePath << std::endl;
-	std::cout << "_fileName = " << this->_fileName << std::endl;
 	if (access(this->_filePath.c_str(), F_OK) == -1) {
 		this->_response = createDeleteResponseHeader("404 Not Found");
 		return;
@@ -47,6 +57,12 @@ void HandleRequests::deleteMethod(WebServer &webServData)
 		return ;
 	}
 	bool	isDirectory = isADirectory(this->_filePath);
+	bool	isLocked = isItLocked(this->_filePath);
+	if (isLocked)
+	{
+		this->_response = createDeleteResponseHeader("409 Conflict");
+		return ;
+	}
 	if (remove(this->_filePath.c_str()) == 0)
 	{
 		if (isDirectory == true)	
@@ -54,6 +70,8 @@ void HandleRequests::deleteMethod(WebServer &webServData)
 		else
 			this->_response = createDeleteResponseHeader("200 OK");
 	}
+	else
+		this->_response = createDeleteResponseHeader("500 Internal Server Error");
 	struct epoll_event event;
 	event.events = EPOLLOUT | EPOLLET;
 	event.data.fd = this->_clientFd;

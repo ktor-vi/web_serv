@@ -23,6 +23,7 @@
 #include <sys/epoll.h>
 #include <sstream>
 #include <sys/stat.h>
+#include <sys/file.h>
 
 #include "../class/HandleRequests.hpp"
 #include "struct.hpp"
@@ -44,10 +45,6 @@ void	make_socket_nonblocking(int sockfd); // litteral
 char *ft_call_cgi(char *ans);
 
 // HTTP PART
-void		postMethods(std::string buffer);
-void		getMethods(int clientFd, ssize_t bytes);
-int			handle_request(int client_fd);
-void		send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
-int 		sendHttpResponseHeader(int clientFd, size_t contentLength, const std::string &contentType, const std::string &statusCode);
+bool		isADirectory(std::string path);
 std::string	findContentType(std::string url);
 #endif
