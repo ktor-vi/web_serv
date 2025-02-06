@@ -18,6 +18,7 @@ int main()
 	{
     	// config.printConfig();
     	WebServer web_serv(config);
+
     	// web_serv.printServer();
     	web_serv.verifyServer();
 		ft_webserver(web_serv);

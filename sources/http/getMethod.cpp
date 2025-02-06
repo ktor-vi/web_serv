@@ -85,10 +85,15 @@ void HandleRequests::getMethod(WebServer &webServData)
 {
 	initGetInfos(webServData);
 
-	if (access(this->_filePath.c_str(), R_OK) != 0)
+	if (access(this->_filePath.c_str(), F_OK) != 0)
 	{
 		this->_response = createGetResponseHeader(0, "text/html", "404 Not Found");
 		return;
+	}
+	if (open(this->_filePath.c_str(), O_RDONLY) == -1)
+	{
+		this->_response = createGetResponseHeader(0, "text/html", "403 Forbidden");
+		return ;
 	}
 
 	std::ifstream file(this->_filePath.c_str(), std::ios::binary);

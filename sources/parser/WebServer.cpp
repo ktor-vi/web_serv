@@ -37,6 +37,7 @@ WebServer::WebServer(Config &conf)
 			else
 			throw std::runtime_error("Error: unknown server directive.");
 		}
+
 		std::vector<LocationBlock> location_blocks = it->locations;
 		std::vector<LocationBlock>::iterator kt;
 		std::vector<LocationBlock>::iterator kte = location_blocks.end();
@@ -175,7 +176,7 @@ void	WebServer::verifyServer() const
 		if (it->listen < 1024 || it->listen > 65535)
 			throw std::runtime_error("Bad Port");
 		if (it->body_size < 1024 || it->body_size > 2000000)
-			throw std::runtime_error("Bad Body size (1024B-2MB)");
+			throw std::runtime_error("Bad Body size (1024B-2MB)");		
 		std::map<int, std::string>::const_iterator jt;
 		std::map<int, std::string>::const_iterator jte = it->error_pages.end();
 		for (jt = it->error_pages.begin(); jt != jte; jt++)
