@@ -47,6 +47,11 @@ bool	HandleRequests::isItLocked(std::string path)
 void HandleRequests::deleteMethod(WebServer &webServData)
 {
 	initDeleteInfos(webServData);
+	if (isMethodAllowed(webServData.getAllowedMethods(this->getServerPort(this->_buffer), this->_rootUrl), "DELETE") == false)
+	{
+		createPostResponse("403 Forbidden");
+		return;
+	}
 	if (access(this->_filePath.c_str(), F_OK) == -1) {
 		this->_response = createDeleteResponseHeader("404 Not Found");
 		return;
