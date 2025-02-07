@@ -61,6 +61,7 @@ static std::string createGetResponseHeader(size_t contentLength, const std::stri
 	headerStream << "\r\n";
 	std::string header = headerStream.str();
 
+	std::cout << ">>> HTTP RESPONSE <<< " << std::endl << header.c_str() << std::endl;
 	return (header.c_str)();
 }
 
@@ -84,7 +85,11 @@ std::string	findContentType(std::string url) // comment ca se fait que les gifs 
 void HandleRequests::getMethod(WebServer &webServData)
 {
 	initGetInfos(webServData);
-
+	if (isMethodAllowed(webServData.getAllowedMethods(this->getServerPort(this->_buffer), this->_rootUrl), "GET") == false)
+	{
+		this->_response = createGetResponseHeader(0, "text/html", "403 Forbidden");
+		return;
+	}	
 	if (access(this->_filePath.c_str(), F_OK) != 0)
 	{
 		this->_response = createGetResponseHeader(0, "text/html", "404 Not Found");

@@ -27,16 +27,18 @@ class HandleRequests
 
 		// postMethod.cpp
 		void		getUploadsLocation(WebServer &webServData);
-		void		createPostResponse(void);
+		void		createPostResponse(std::string code);
+		void		postMethod(WebServer &webServData);
 
 		// HandleRequests.cpp
 		void		initPostInfos(WebServer &webServData);
+		int			getServerPort(std::string req);
 		void		setBuffer(std::string buffer);
 		void		setBytesRead(int bytes_read);
 		void 		initURLs();
 		std::string	getResponse() const;
-		void		postMethod(WebServer &webServData);
-		
+		bool		isMethodAllowed(const std::vector<std::string> methods, const std::string asked);
+
 	private:
 		int					_clientFd;
 		int 				_epollFd;

@@ -24,18 +24,24 @@ static std::string createPostResponseHeader(size_t contentLength, const std::str
 	return (header.c_str());
 }
 
-void	HandleRequests::createPostResponse(void)
+void	HandleRequests::createPostResponse(std::string code)
 {
 	std::ifstream file(this->_filePath.c_str(), std::ios::binary);
 	std::ostringstream content;
 	content << file.rdbuf();
 	file.close();
-	this->_response = createPostResponseHeader(content.str().size(), findContentType(this->_filePath), "200 OK") + content.str();
+	this->_response = createPostResponseHeader(content.str().size(), findContentType(this->_filePath), code) + content.str();
 }
 
 void HandleRequests::postMethod(WebServer &webServData)
 {
 	initPostInfos(webServData);
+
+	if (isMethodAllowed(webServData.getAllowedMethods(this->getServerPort(this->_buffer), this->_rootUrl), "GET") == false)
+	{
+		createPostResponse("403 Forbidden");
+		return;
+	}	
 
 	int fileFd = open(this->_filePath.c_str(), O_WRONLY | O_CREAT | O_NONBLOCK | O_TRUNC, 0644);
 	if (fileFd < 0) {
@@ -66,7 +72,7 @@ void HandleRequests::postMethod(WebServer &webServData)
 		perror("EPOLL_CTL MOD ERROR");
 		return;
 	}
-	createPostResponse();
+	createPostResponse("200 OK");
 }
 
 

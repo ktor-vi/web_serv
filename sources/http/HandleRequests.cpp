@@ -13,7 +13,7 @@ static int whichMethod(std::string str)
 	return (0);
 }
 
-static int getPort(std::string req) /*par rapport a la requete actuelle*/
+ int HandleRequests::getServerPort(std::string req) /*par rapport a la requete actuelle*/
 {
 	int start = req.find("Host:");
 	int line_start = start + 5;
@@ -35,6 +35,7 @@ void 	HandleRequests::setBuffer(std::string buffer)
 {
 	this->_buffer = buffer;
 }
+
 void 	HandleRequests::setBytesRead(int bytes_read)
 {
 	this->_bytesRead = bytes_read;
@@ -66,15 +67,28 @@ void HandleRequests::initURLs()
 	}
 }
 
-std::string HandleRequests::getResponse() const{
-	return this->_response;
+std::string HandleRequests::getResponse() const
+{
+	return (this->_response);
+}
+
+bool	HandleRequests::isMethodAllowed(const std::vector<std::string> methods, const std::string asked)
+{
+	int	size = methods.size();
+
+	for (int i = 0; i < size; ++i)
+	{
+		if (methods[i] == asked)
+			return (true);
+	}
+	return (false);
 }
 
 HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int epoll_fd, int client_fd) : _clientFd(client_fd), _epollFd(epoll_fd),  _webServData(webServData), _buffer(request)
 {
 	try
 	{
-		this->_port = getPort(this->_buffer);
+		this->_port = this->getServerPort(this->_buffer);
 		initURLs();
 		if (webServData.getCGIStatus(this->_port, this->_rootUrl))
 			cgiMethods(webServData);	
