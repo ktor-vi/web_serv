@@ -37,7 +37,7 @@ void HandleRequests::postMethod(WebServer &webServData)
 {
 	initPostInfos(webServData);
 
-	if (isMethodAllowed(webServData.getAllowedMethods(this->getServerPort(this->_buffer), this->_rootUrl), "GET") == false)
+	if (isMethodAllowed(webServData.getAllowedMethods(this->getServerPort(this->_buffer), this->_rootUrl), "POST") == false)
 	{
 		createPostResponse("403 Forbidden");
 		return;
