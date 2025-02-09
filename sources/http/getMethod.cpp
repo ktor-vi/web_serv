@@ -49,7 +49,15 @@ void	HandleRequests::initGetInfos(WebServer &webServData)
 	else
 		this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
 }
-
+static std::string createRedirectResponse(int statusCode, const std::string& newLocation) {
+    std::ostringstream response;
+    response << "HTTP/1.1 " << statusCode << " Moved Permanently\r\n";
+    response << "Location: " << newLocation << "\r\n";
+    response << "Content-Length: 0\r\n";
+    response << "Connection: close\r\n";
+    response << "\r\n";
+    return response.str();
+}
 static std::string createGetResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
 {
 	std::ostringstream headerStream;
@@ -89,7 +97,12 @@ void HandleRequests::getMethod(WebServer &webServData)
 	{
 		this->_response = createGetResponseHeader(0, "text/html", "403 Forbidden");
 		return;
-	}	
+	}
+	if (!webServData.getRedirect(this->_port, this->_rootUrl).second.empty())
+	{
+		this->_response =createRedirectResponse(webServData.getRedirect(this->_port, this->_rootUrl).first, webServData.getRedirect(this->_port, this->_rootUrl).second);
+		return;
+	}
 	if (access(this->_filePath.c_str(), F_OK) != 0)
 	{
 		this->_response = createGetResponseHeader(0, "text/html", "404 Not Found");
