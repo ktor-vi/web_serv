@@ -21,6 +21,7 @@ int main()
 
     	// web_serv.printServer();
     	web_serv.verifyServer();
+		web_serv.printServer();
 		ft_webserver(web_serv);
   	} 
   	else

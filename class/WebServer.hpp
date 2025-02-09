@@ -37,6 +37,8 @@ class WebServer
 			std::string						getCGIPath(int port, std::string location_path);
 			bool							getCGIStatus(int port, std::string location_path);
 			std::vector<std::string>		getAllowedMethods(int port, std::string location_path);
+			std::pair<int, std::string> 	getRedirect(int port, std::string location_path);
+			bool 							getAutoindex(int port, std::string location_path);
 
 			const std::vector<Server>		&getServers() const;
 

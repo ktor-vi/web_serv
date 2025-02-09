@@ -20,6 +20,8 @@ struct Location {
 	std::string path;
 	// name of index file
 	std::string index;
+	//redirection
+	std::pair<int, std::string> redirect;
 	// path of the index file
 	std::string index_path;
 	// root path applicable to location

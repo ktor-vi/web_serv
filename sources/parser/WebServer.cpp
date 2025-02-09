@@ -57,6 +57,12 @@ WebServer::WebServer(Config &conf)
 				{
 					location.index = lt->second;
 				}
+				else if(lt->first == "return")
+				{
+					location.redirect.first = atoi(lt->second.substr(0, lt->second.find_first_of(" ")).c_str());
+					location.redirect.second = lt->second.substr(lt->second.find_first_of(" "));
+
+				}
 				else if (lt->first == "dir_default")
 				{
 					location.dir_default_path = lt->second;
@@ -199,7 +205,9 @@ void	WebServer::verifyServer() const
 				access(kt->dir_default_path.c_str(), R_OK) != 0)
 			throw std::runtime_error("Bad Directory Page Path");
 			if (!kt->cgi_path.empty() && access(kt->cgi_path.c_str(), R_OK) != 0)
-			throw std::runtime_error("Bad CGI Script Path");
+				throw std::runtime_error("Bad CGI Script Path");
+			if((kt->redirect.first != 301 && kt->redirect.first != 302 )&& !kt->redirect.second.empty())
+				throw std::runtime_error("Bad Error Code for redirect");
 		}
 	}
 }
@@ -246,7 +254,10 @@ void	WebServer::printServer() const
 				? std::cout << "No Dir Default Path : " << std::endl
 				: std::cout << "Dir Default Path : "
 							<< "[" << kt->dir_default_path << "]" << std::endl;
-
+			(kt->redirect.second.empty())
+				? std::cout << "No redirect : " << std::endl
+				: std::cout << "Redirect code : "
+							<< "[" << kt->redirect.first << "] " << "on " << kt->redirect.second << std::endl;
 			(kt->autoindex) ? std::cout << "Autoindex on" << std::endl
 							: std::cout << "Autoindex off" << std::endl;
 			(kt->cgi) ? std::cout << "CGI on" << std::endl
@@ -494,6 +505,50 @@ WebServer::getAllowedMethods(int port, std::string location_path)
 			return kt->allowed_methods;
 	}
 	return std::vector<std::string>();
+}
+
+std::pair<int, std::string> WebServer::getRedirect(int port, std::string location_path)
+{
+	int index = 0;
+	std::vector<Server>::const_iterator it;
+	std::vector<Server>::const_iterator ite = servers.end();
+	for (it = servers.begin(); it != ite; it++)
+	{
+		if (port == it->listen)
+			break;
+		index++;
+	}
+	std::vector<Location> locations = this->servers[index].locations;
+	std::vector<Location>::iterator kt;
+	std::vector<Location>::iterator kte = locations.end();
+	for (kt = locations.begin(); kt != kte; kt++)
+	{
+		if (kt->path == location_path)
+			return kt->redirect;
+	}
+	return std::pair<int, std::string>();
+}
+
+bool WebServer::getAutoindex(int port, std::string location_path)
+{
+	int index = 0;
+	std::vector<Server>::const_iterator it;
+	std::vector<Server>::const_iterator ite = servers.end();
+	for (it = servers.begin(); it != ite; it++)
+	{
+		if (port == it->listen)
+			break;
+		index++;
+	}
+	std::vector<Location> locations = this->servers[index].locations;
+	std::vector<Location>::iterator kt;
+	std::vector<Location>::iterator kte = locations.end();
+	for (kt = locations.begin(); kt != kte; kt++)
+	{
+		if (kt->path == location_path)
+			return kt->autoindex;
+	}
+	return false;
 }
 
 const std::vector<Server> 	&WebServer::getServers() const 
