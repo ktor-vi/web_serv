@@ -93,6 +93,11 @@ std::string	findContentType(std::string url) // comment ca se fait que les gifs 
 void HandleRequests::getMethod(WebServer &webServData)
 {
 	initGetInfos(webServData);
+	if (access(this->_filePath.c_str(), F_OK) != 0)
+	{
+		this->_response = createGetResponseHeader(0, "text/html", "404 Not Found");
+		return;
+	}
 	if (isMethodAllowed(webServData.getAllowedMethods(this->getServerPort(this->_buffer), this->_rootUrl), "GET") == false)
 	{
 		this->_response = createGetResponseHeader(0, "text/html", "403 Forbidden");
@@ -101,11 +106,6 @@ void HandleRequests::getMethod(WebServer &webServData)
 	if (!webServData.getRedirect(this->_port, this->_rootUrl).second.empty())
 	{
 		this->_response =createRedirectResponse(webServData.getRedirect(this->_port, this->_rootUrl).first, webServData.getRedirect(this->_port, this->_rootUrl).second);
-		return;
-	}
-	if (access(this->_filePath.c_str(), F_OK) != 0)
-	{
-		this->_response = createGetResponseHeader(0, "text/html", "404 Not Found");
 		return;
 	}
 	if (open(this->_filePath.c_str(), O_RDONLY) == -1)
