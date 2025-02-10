@@ -38,6 +38,7 @@ class HandleRequests
 		void 		initURLs();
 		std::string	getResponse() const;
 		bool		isMethodAllowed(const std::vector<std::string> methods, const std::string asked);
+		std::string errorPageToBody(int error_code, WebServer &data);
 
 	private:
 		int					_clientFd;
