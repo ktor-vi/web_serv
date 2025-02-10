@@ -1,53 +1,72 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test POST & DELETE Upload</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Test POST & DELETE Upload</title>
+	<link rel="stylesheet" href="stylesPost.css">
 </head>
 <body>
-    <h2>Tester l'envoi d'un fichier via POST</h2>
-    <input type="file" id="fileInput">
-    <button onclick="sendFile()">Envoyer</button>
+	<div class="container">
+		<h2>Tester l'envoi d'un fichier via POST</h2>
+		<input type="file" id="fileInput">
+		<button onclick="sendFile()">Envoyer</button>
 
-    <h2>Supprimer un fichier via DELETE</h2>
-    <input type="text" id="fileName" placeholder="Nom du fichier à supprimer">
-    <button onclick="deleteFile()">Supprimer</button>
+		<h2>Supprimer un fichier via DELETE</h2>
+		<input type="text" id="fileName" placeholder="Nom du fichier à supprimer">
+		<button onclick="deleteFile()">Supprimer</button>
+		<img src="trash.png" alt="Poubelle" width="50" height="50">
+		<div id="imageContainer">Aucune image envoyée</div>
+	</div>
 
-    <script>
-        function sendFile() {
-            const fileInput = document.getElementById('fileInput');
-            if (fileInput.files.length === 0) {
-                alert("Veuillez sélectionner un fichier.");
-                return;
-            }
+	<script>
+		function sendFile() {
+			const fileInput = document.getElementById('fileInput');
+			if (fileInput.files.length === 0) {
+				alert("Veuillez sélectionner un fichier.");
+				return;
+			}
 
-            const formData = new FormData();
-            formData.append("file", fileInput.files[0]);
+			const formData = new FormData();
+			const file = fileInput.files[0];
+			formData.append("file", file);
 
-            fetch("http://localhost:8080/uploads/", { // URL où POST envoie les fichiers
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.text()) // Si ton serveur ne renvoie pas du JSON, utilise .text()
-            .then(data => console.log("Réponse du serveur :", data))
-            .catch(error => console.error("Erreur :", error));
-        }
+			fetch("http://localhost:8080/uploads/", {
+				method: "POST",
+				body: formData
+			})
+			.then(response => response.text())
+			.then(data => {
+				console.log("Réponse du serveur :", data);
+				displayImage(URL.createObjectURL(file));
+			})
+			.catch(error => console.error("Erreur :", error));
+		}
 
-        function deleteFile() {
-            const fileName = document.getElementById('fileName').value.trim();
-            if (fileName === "") {
-                alert("Veuillez entrer un nom de fichier.");
-                return;
-            }
+		function deleteFile() {
+			const fileName = document.getElementById('fileName').value.trim();
+			if (fileName === "") {
+				alert("Veuillez entrer un nom de fichier.");
+				return;
+			}
 
-            fetch(`http://localhost:8080/uploads/${fileName}`, { // URL DELETE ciblant le fichier
-                method: "DELETE"
-            })
-            .then(response => response.text()) // Adapter en fonction de la réponse du serveur
-            .then(data => console.log("Fichier supprimé :", data))
-            .catch(error => console.error("Erreur :", error));
-        }
-    </script>
+			fetch(`http://localhost:8080/uploads/${fileName}`, {
+				method: "DELETE"
+			})
+			.then(response => response.text())
+			.then(data => {
+				console.log("Fichier supprimé :", data);
+			})
+			.catch(error => console.error("Erreur :", error));
+		}
+
+		function displayImage(src) {
+			const container = document.getElementById('imageContainer');
+			container.innerHTML = "";
+			const img = document.createElement('img');
+			img.src = src;
+			container.appendChild(img);
+		}
+	</script>
 </body>
 </html>

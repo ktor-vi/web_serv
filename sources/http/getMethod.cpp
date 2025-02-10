@@ -105,7 +105,7 @@ void HandleRequests::getMethod(WebServer &webServData)
 	}
 	if (!webServData.getRedirect(this->_port, this->_rootUrl).second.empty())
 	{
-		this->_response =createRedirectResponse(webServData.getRedirect(this->_port, this->_rootUrl).first, webServData.getRedirect(this->_port, this->_rootUrl).second);
+		this->_response = createRedirectResponse(webServData.getRedirect(this->_port, this->_rootUrl).first, webServData.getRedirect(this->_port, this->_rootUrl).second);
 		return;
 	}
 	if (open(this->_filePath.c_str(), O_RDONLY) == -1)
