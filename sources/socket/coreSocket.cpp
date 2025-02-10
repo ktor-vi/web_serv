@@ -101,8 +101,10 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 	if (data.responseBufferAbsent(client_fd))
 		return -1;
 
-	const std::string &response = data.getResponseBuffer(client_fd);
-	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+const std::string &response = data.getResponseBuffer(client_fd);
+ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+
+std::cout << "Bytes sent: " << bytes_sent << "/" << response.size() << std::endl;
 
 	if (bytes_sent < 0)
 	{

@@ -12,14 +12,14 @@ void HandleRequests::initPostInfos(WebServer &webServData)
 
 static std::string createPostResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
 {
-	std::ostringstream headerStream;
+  std::ostringstream headerStream;
 
-	headerStream << "HTTP/1.1 " << statusCode << " \r\n";
-	headerStream << "Content-Type: " << contentType << "\r\n";
-	headerStream << "Content-Length: " << contentLength << "\r\n";
-	headerStream << "Connection: keep-alive\r\n";
-	headerStream << "\r\n";
-	std::string header = headerStream.str();
+  headerStream << "HTTP/1.1 " << statusCode << " \r\n";
+  headerStream << "Content-Type: " << contentType << "\r\n";
+  headerStream << "Content-Length: " << contentLength << "\r\n";
+  headerStream << "Connection: keep-alive\r\n";
+  headerStream << "\r\n";
+  std::string header = headerStream.str();
 
 	return (header.c_str());
 }
@@ -32,7 +32,6 @@ void	HandleRequests::createPostResponse(std::string code)
 	file.close();
 	this->_response = createPostResponseHeader(content.str().size(), findContentType(this->_filePath), code) + content.str();
 }
-
 void HandleRequests::postMethod(WebServer &webServData)
 {
 	initPostInfos(webServData);

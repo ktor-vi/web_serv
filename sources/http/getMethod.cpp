@@ -105,7 +105,12 @@ void HandleRequests::getMethod(WebServer &webServData)
 	}
 	if (!webServData.getRedirect(this->_port, this->_rootUrl).second.empty())
 	{
-		this->_response = createRedirectResponse(webServData.getRedirect(this->_port, this->_rootUrl).first, webServData.getRedirect(this->_port, this->_rootUrl).second);
+		this->_response =createRedirectResponse(webServData.getRedirect(this->_port, this->_rootUrl).first, webServData.getRedirect(this->_port, this->_rootUrl).second);
+		return;
+	}
+	if (access(this->_filePath.c_str(), F_OK) != 0)
+	{
+		this->_response = createGetResponseHeader(errorPageToBody(404, webServData).size(), "text/html", "404 Not Found") + errorPageToBody(404, webServData);
 		return;
 	}
 	if (open(this->_filePath.c_str(), O_RDONLY) == -1)
@@ -120,4 +125,12 @@ void HandleRequests::getMethod(WebServer &webServData)
 	file.close();
 
 	this->_response = createGetResponseHeader(content.str().size(), findContentType(this->_filePath), "200 OK") + content.str();
+    // Activer EPOLLOUT pour écrire dans handle_write_event()
+    struct epoll_event event;
+    event.events = EPOLLOUT | EPOLLET;
+    event.data.fd = this->_clientFd;
+    if (epoll_ctl(this->_epollFd, EPOLL_CTL_MOD, this->_clientFd, &event) == -1) {
+        perror("EPOLL_CTL MOD ERROR");
+        return;
+    }
 }
