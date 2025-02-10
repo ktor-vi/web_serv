@@ -76,14 +76,25 @@ bool	HandleRequests::isMethodAllowed(const std::vector<std::string> methods, con
 {
 	int	size = methods.size();
 
+  std::cout << size << std::endl;
 	for (int i = 0; i < size; ++i)
 	{
 		if (methods[i] == asked)
 			return (true);
 	}
+  std::cout << "returned false" << std::endl;
 	return (false);
 }
 
+
+std::string HandleRequests::errorPageToBody(int error_code, WebServer &data){
+  
+	std::ifstream file(data.getErrorPagePath(this->_port, error_code).c_str(), std::ios::binary);
+	std::ostringstream content;
+	content << file.rdbuf();
+	file.close();
+  return content.str();
+}
 HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int epoll_fd, int client_fd) : _clientFd(client_fd), _epollFd(epoll_fd),  _webServData(webServData), _buffer(request)
 {
 	try

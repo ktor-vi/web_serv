@@ -5,13 +5,37 @@ WebServer::WebServer(Config &conf)
 	std::vector<ServerBlock> server_blocks = conf.getServers();
 	std::vector<ServerBlock>::iterator it;
 	std::vector<ServerBlock>::iterator ite = server_blocks.end();
-
+  
 	for (it = server_blocks.begin(); it != ite; it++)
 	{
 		Server server;
 		server.server_name = it->server_name;
 		server.listen = it->listen;
-		std::map<std::string, std::string>::iterator jt;
+    std::pair<int, std::string>err400;
+    err400.first = 400;
+    err400.second = "sources/html/error_pages/400.html";
+		server.error_pages.insert(err400);
+    std::pair<int, std::string>err403;
+    err403.first = 403;
+    err403.second = "sources/html/error_pages/403.html";
+		server.error_pages.insert(err403);
+    std::pair<int, std::string>err404;
+    err404.first = 404;
+    err404.second = "sources/html/error_pages/404.html";
+		server.error_pages.insert(err404);
+    std::pair<int, std::string>err409;
+    err409.first = 409;
+    err409.second = "sources/html/error_pages/409.html";
+		server.error_pages.insert(err409);
+    std::pair<int, std::string>err413;
+    err413.first = 413;
+    err413.second = "sources/html/error_pages/413.html";
+		server.error_pages.insert(err413);
+    std::pair<int, std::string>err500;
+    err500.first = 500;
+    err500.second = "sources/html/error_pages/500.html";
+		server.error_pages.insert(err500);
+    std::map<std::string, std::string>::iterator jt;
 		std::map<std::string, std::string>::iterator jte =
 			it->other_directives.end();
 		for (jt = it->other_directives.begin(); jt != jte; jt++)
@@ -32,6 +56,7 @@ WebServer::WebServer(Config &conf)
 			err.second = jt->second.substr(jt->second.find_first_of(" ") + 1);
 			if (err.second[0] == '/')
 				err.second = err.second.substr(1);
+      server.error_pages.erase(err.first);
 			server.error_pages.insert(err);
 			}
 			else
@@ -91,6 +116,8 @@ WebServer::WebServer(Config &conf)
 				}
 				else if (lt->first == "allowed_methods")
 				{
+          if(lt->second.empty())
+            location.allowed_methods = std::vector<std::string>();
 					std::istringstream iss(lt->second);
 					std::string method;
 					while (iss >> method)
