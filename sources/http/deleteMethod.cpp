@@ -56,7 +56,7 @@ void HandleRequests::deleteMethod(WebServer &webServData)
 		this->_response = createDeleteResponseHeader("404 Not Found");
 		return;
 	}
-	if (open(this->_filePath.c_str(), O_RDONLY) == -1)
+	if (access(this->_filePath.c_str(), O_RDONLY) == -1)
 	{
 		this->_response = createDeleteResponseHeader("403 Forbidden");
 		return ;

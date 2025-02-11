@@ -113,7 +113,7 @@ void HandleRequests::getMethod(WebServer &webServData)
 		this->_response = createGetResponseHeader(errorPageToBody(404, webServData).size(), "text/html", "404 Not Found") + errorPageToBody(404, webServData);
     return;
 	}
-	if (open(this->_filePath.c_str(), O_RDONLY) == -1)
+	if (access(this->_filePath.c_str(), O_RDONLY) == -1)
 	{
 		this->_response = createGetResponseHeader(errorPageToBody(403, webServData).size(), "text/html", "403 Forbidden")  + errorPageToBody(403, webServData);
     return;
