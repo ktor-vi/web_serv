@@ -13,9 +13,13 @@
 
 void make_socket_nonblocking(int sockfd)
 {
-	if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) // Le socket fd devient non-bloquant
-		perror("fcntl error");
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+        perror("fcntl error");
+        close(sockfd);  // Fermez la socket en cas d'erreur
+        exit(EXIT_FAILURE);  // Arrêtez l'exécution ou gérez autrement
+    }
 }
+
 
 bool	ft_isit_fdsocket(WebServer &data, int socket_fd)
 {

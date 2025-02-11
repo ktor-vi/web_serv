@@ -40,7 +40,8 @@ bool	ft_isit_fdsocket(WebServer &data, int socket_fd);
 void	ft_setup_socket(int *server_fd, int port, int epoll_fd, struct epoll_event *ptr);
 void	ft_setup_all_socket(WebServer &data, int epoll_fd, struct epoll_event *ptr);
 void	make_socket_nonblocking(int sockfd); // litteral
-
+int handle_read_event(int client_fd, int epoll_fd, WebServer &data);
+int handle_write_event(int client_fd, int epoll_fd, WebServer &data);
 // CGI PART
 char *ft_call_cgi(char *ans);
 
