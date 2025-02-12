@@ -1,12 +1,15 @@
 #include "../../class/Config.hpp"
 Config::Config() : lineNumber(0) {}
 Config::~Config() {}
-bool Config::parseFile(const std::string &fileName) {
+
+bool Config::parseFile(const std::string &fileName)
+{
   std::ifstream configFile(fileName.c_str());
   if (!configFile) {
     std::cerr << "Error: can't open file." << std::endl;
     return false;
   }
+
 
   std::stack<std::string> blockStack;
   ServerBlock currentServer;

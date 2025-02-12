@@ -1,0 +1,28 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+header {
+    margin: 20px 0;
+}
+
+.memes, .lakaka {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    padding: 20px;
+}
+
+.memes figure, .lakaka figure {
+    margin: 0;
+}
+
+.memes img, .lakaka img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

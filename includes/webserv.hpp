@@ -1,6 +1,7 @@
 #ifndef MY_HEADER_HPP
 #define MY_HEADER_HPP
 
+#include <algorithm>
 #include <arpa/inet.h> // htons, htonl, ntohs, ntohl
 #include <cstdlib>	 // pour std::atoi
 #include <dirent.h>	// opendir, readdir, closedir
@@ -22,11 +23,14 @@
 #include <sys/epoll.h>
 #include <sstream>
 #include <sys/stat.h>
+#include <sys/file.h>
 
 #include "../class/HandleRequests.hpp"
 #include "struct.hpp"
 #include "../class/Config.hpp"
 #include "../class/WebServer.hpp"
+
+#define CHUNK_SIZE 4096
 
 class WebServer;
 
@@ -36,14 +40,12 @@ bool	ft_isit_fdsocket(WebServer &data, int socket_fd);
 void	ft_setup_socket(int *server_fd, int port, int epoll_fd, struct epoll_event *ptr);
 void	ft_setup_all_socket(WebServer &data, int epoll_fd, struct epoll_event *ptr);
 void	make_socket_nonblocking(int sockfd); // litteral
-
+int handle_read_event(int client_fd, int epoll_fd, WebServer &data);
+int handle_write_event(int client_fd, int epoll_fd, WebServer &data);
 // CGI PART
 char *ft_call_cgi(char *ans);
 
 // HTTP PART
-void	postMethods(char *buffer);
-void	getMethods(int clientFd, ssize_t bytes);
-int		handle_request(int client_fd);
-void	send_http_response_header(int client_fd, const char *content_type, ssize_t content_length);
-
+bool		isADirectory(std::string path);
+std::string	findContentType(std::string url);
 #endif

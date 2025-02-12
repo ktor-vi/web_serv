@@ -30,14 +30,14 @@ void	ft_setup_socket(int *server_fd, int port, int epoll_fd, struct epoll_event 
 	addr_serv.sin_port = htons(port);				
 	inet_pton(AF_INET, "127.0.0.1", &addr_serv.sin_addr); // server will listen 127.0.0.1:808x
 	if (bind(*server_fd, (const struct sockaddr *)&addr_serv, sizeof(addr_serv)) == -1) // link socket to the addr:port
-		perror("BIND ERROR\n"), exit(1);
-	if (listen(*server_fd, 5) < 0) 														//lock socket in listen mode
+		perror("BIND ERROR"), exit(1);
+	if (listen(*server_fd, 128) < 0) 														//lock socket in listen mode
 		perror("LISTEN ERROR\n"), exit(1);
 	ptr->events = EPOLLIN;
 	ptr->data.fd = *server_fd;
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, *server_fd, ptr) == -1)
 		perror("EPOLL_CTL ERROR"), exit(1);
-	printf("SERVER ON 127.0.0.1:%d IS ONLINE\n", port);
+	std::cout << "SERVER ON 127.0.0.1: " << port << " IS ONLINE\n";
 }
 
 void ft_setup_all_socket(WebServer &data, int epoll_fd, struct epoll_event *ptr)

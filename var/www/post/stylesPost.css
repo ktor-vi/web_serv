@@ -1,0 +1,29 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    text-align: center;
+}
+
+#imageContainer {
+    width: 600px;
+    height: 600px;
+    border: 2px solid #ccc;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#imageContainer img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

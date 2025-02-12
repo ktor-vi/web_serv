@@ -3,50 +3,72 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Nombre Aléatoire</title>
-	<style>
-		body {
-			font-family: Arial, sans-serif;
-			text-align: center;
-			margin-top: 50px;
-		}
-		button {
-			padding: 10px 20px;
-			font-size: 16px;
-			cursor: pointer;
-			margin: 10px;
-		}
-		#result {
-			margin-top: 20px;
-			font-size: 24px;
-			font-weight: bold;
-		}
-	</style>
+	<title>MEMES CAT MUSEUM</title>
+	<!-- Lien vers le fichier CSS externe -->
+	<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-	<h1>JE SUIS FACEBOOK UWU</h1>
-	<button id="randomButton">Obtenir un nombre</button>
-	<button id="shutdownButton" style="background-color: red; color: white;">Arrêter le serveur</button>
-	<div id="result"></div>
+	<header>
+		<h1>MEMES CAT MUSEUM</h1>
+	</header>
 
-	<script>
-		// Bouton pour obtenir un nombre aléatoire
-		document.getElementById("randomButton").addEventListener("click", function () {
-			fetch("/random")
-				.then(response => response.text())
-				.then(data => {
-					document.getElementById("result").textContent = `Nombre : ${data}`;
-				})
-				.catch(error => {
-					document.getElementById("result").textContent = "Erreur lors de la récupération du nombre.";
-					console.error("Erreur :", error);
-				});
-		});
+	<main>
+		<h2>Random internet classics</h2>
+		<section class="memes">
+			<figure>
+				<img src="/images/crunchycat.jpg" alt="Meme Cat 1">
+				<figcaption>Le chat croquette <br>(malicieux ?) </figcaption>
+			</figure>
+			<figure>
+				<img src="/images/huh.gif" alt="Meme Cat 2">
+				<figcaption>huh ?</figcaption>
+			</figure>
+			<figure>
+				<img src="/images/smile.jpg" alt="Meme Cat 3">
+				<figcaption>c:</figcaption>
+			</figure>
+			<figure>
+				<img src="/images/uiiau.png" alt="Meme Cat 4">
+				<figcaption>UIIA U</figcaption>
+			</figure>
+		</section>
 
-		// Bouton pour arrêter le serveur
-		document.getElementById("shutdownButton").addEventListener("click", function () {
-			fetch("/shutdown", { method: "POST" })
-		});
-	</script>
+		<h2>Lakaka lore</h2>
+		<section class="lakaka">
+			<figure>
+				<img src="/images/oupigoupi.jpeg" alt="oupigoupi">
+				<figcaption>Oupigoupi, prince de Goupiland</figcaption>
+			</figure>
+			<figure>
+				<img src="/images/larry.gif" alt="larry">
+				<figcaption>Larry le malicieux</figcaption>
+			</figure>
+			<figure>
+				<img src="/images/lhommegenial.jpeg" alt="l'homme genial">
+				<figcaption>L'homme genial</figcaption>
+			</figure>
+			<figure>
+				<img src="/images/lesavaistu.jpeg" alt="le savais-tu">
+				<figcaption>Le savais-tu ?</figcaption>
+			</figure>
+			<figure>
+				<img src="/images/mastermind.jpeg" alt="Meme Cat 5">
+				<figcaption>Le mastermind</figcaption>
+			</figure>
+			<figure>
+				<img src="/images/lelectricien.jpeg" alt="Meme Cat 5">
+				<figcaption>C'est l'electricien !!</figcaption>
+			</figure>
+		</section>
+
+		<h2>Envoyer un mot au serveur</h2>
+		<section class="user-input">
+			<form action="/submit" method="POST">
+				<label for="userWord">Tapez un mot :</label>
+				<input type="text" id="userWord" name="word" placeholder="Entrez votre mot ici" required>
+				<button type="submit">Envoyer</button>
+			</form>
+		</section>
+    </main>
 </body>
 </html>

@@ -2,37 +2,61 @@
 #define HANDLEREQUESTS_HPP
 #include "../includes/webserv.hpp"
 
+class WebServer;
 
 class HandleRequests
 {
 	public:
-		HandleRequests(int clientFd);
+		HandleRequests(std::string request, WebServer &webServData, int epoll_fd, int client_fd);
 		HandleRequests(const HandleRequests &copy);
 		HandleRequests	&operator=(const HandleRequests &rhs);
 		~HandleRequests(void);
 		
+		// cgiMethods.cpp
+		void 		cgiMethods(WebServer &webServData);
+		
+		// deleteMethod.cpp
+		void		initDeleteInfos(WebServer &webServData);
+		bool		isItLocked(std::string path);
+		void		deleteMethod(WebServer &webServData);
+
+		// getMethod.cpp
 		std::string findFolder(std::string url);
-		std::string	findRoot(std::string contentType);
-		std::string	findPath(std::string rootDir);
-		void 		sendHttpResponse(void);
-		std::string	findContentType(void);
-		void		getMethods(void);
+		void		initGetInfos(WebServer &webServData);
+		void		getMethod(WebServer &webServData);
+
+		// postMethod.cpp
+		void		getUploadsLocation(WebServer &webServData);
+		void		createPostResponse(std::string code);
+		void		postMethod(WebServer &webServData);
+
+		// HandleRequests.cpp
+		void		initPostInfos(WebServer &webServData);
+		int			getServerPort(std::string req);
+		void		setBuffer(std::string buffer);
+		void		setBytesRead(int bytes_read);
+		void 		initURLs();
+		std::string	getResponse() const;
+		bool		isMethodAllowed(const std::vector<std::string> methods, const std::string asked);
+		std::string errorPageToBody(int error_code, WebServer &data);
 
 	private:
-		char		_str[1024];
-		char		_buffer[2048];
-		ssize_t 	_bytes;
-		int			_fdPage;
-		char		_bufferPage[8192];
-		int			_clientFd;
-		
-		std::string	_filePath;
-		std::string	_rootDir;
-		std::string	_url;
-		std::string _port;
-		std::string	_request;
-		std::string	_response;
-		std::string	_folderType;
+		int					_clientFd;
+		int 				_epollFd;
+		WebServer 			&_webServData;
+		std::string			_buffer;
+		int					_fdPage;
+		std::string			_filePath;
+		std::string			_fileName;
+		int 				_bodySize;
+		int 				_bytesRead;
+		std::string			_rootDir;
+		std::string			_url;
+		std::string 		_rootUrl;
+		int					 _port;
+		std::string			_header;
+		std::string			_response;
+		std::string			_uploadsLocations;
 
 };
 
