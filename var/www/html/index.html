@@ -61,14 +61,38 @@
 			</figure>
 		</section>
 
-		<h2>Envoyer un mot au serveur</h2>
+		<h2>Decouvre quel chat connu d'internet tu es !</h2>
 		<section class="user-input">
-			<form action="/submit" method="POST">
-				<label for="userWord">Tapez un mot :</label>
-				<input type="text" id="userWord" name="word" placeholder="Entrez votre mot ici" required>
+			<form action="/cgi-bin/meme_generator.py" method="POST">
+				<input type="text" name="word" value="Ton nom" placeholder="Ton nom">
 				<button type="submit">Envoyer</button>
 			</form>
+			
+			
+			<p id="responseMessage"></p>
+			<script>
+				document.querySelector("form").addEventListener("submit", function(event) {
+					event.preventDefault(); // Empêcher le rechargement de la page
+			
+					let formData = new FormData(this);
+			
+					fetch("/cgi-bin/meme_generator.py", {
+						method: "POST",
+						body: formData
+					})
+					.then(response => response.text())
+					.then(data => {
+						document.getElementById("responseMessage").textContent = data;
+					})
+					.catch(error => {
+						document.getElementById("responseMessage").textContent = "Erreur de génération.";
+					});
+				});
+			</script>
+			
+			
 		</section>
+		
     </main>
 </body>
 </html>

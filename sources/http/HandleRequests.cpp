@@ -82,7 +82,7 @@ bool	HandleRequests::isMethodAllowed(const std::vector<std::string> methods, con
 		if (methods[i] == asked)
 			return (true);
 	}
-  std::cout << "returned false" << std::endl;
+  	throw(std::out_of_range("Not allowd method"));
 	return (false);
 }
 
@@ -102,7 +102,7 @@ HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int 
 		this->_port = this->getServerPort(this->_buffer);
 		initURLs();
 		if (webServData.getCGIStatus(this->_port, this->_rootUrl))
-			cgiMethods(webServData);	
+			cgiMethod(webServData);	
 		int method = whichMethod(this->_buffer);
 		if (method > 0)
 		{
@@ -135,5 +135,4 @@ HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int 
 
 HandleRequests::~HandleRequests()
 {
-	// Ajoutez ici tout code nécessaire à la libération des ressources.
 }

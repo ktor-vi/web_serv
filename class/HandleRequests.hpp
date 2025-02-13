@@ -13,7 +13,10 @@ class HandleRequests
 		~HandleRequests(void);
 		
 		// cgiMethods.cpp
-		void 		cgiMethods(WebServer &webServData);
+		void		initCgiInfos(WebServer &webServData);
+		std::string	cgiExecution(void);
+		void handleMultipartData(void);
+		std::string	cgiMethod(WebServer &webServData);
 		
 		// deleteMethod.cpp
 		void		initDeleteInfos(WebServer &webServData);

@@ -5,21 +5,18 @@ void HandleRequests::initPostInfos(WebServer &webServData)
 	this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
 	this->_fileName = this->_buffer.substr(this->_buffer.find("filename=\"") + 10, this->_buffer.find("\"", this->_buffer.find("filename=\"") + 10) - this->_buffer.find("filename=\"") - 10);
 	this->_filePath = this->_rootDir + this->_fileName;
-	std::cout << "COUCOU 1a !! [" << this->_fileName << "]" << std::endl;
-	std::cout << "COUCOU 2b !! [" << this->_filePath << "]" << std::endl;
-	std::cout << "COUCOU 3c !! [" << this->_rootDir << "]" << std::endl;
 }
 
 static std::string createPostResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
 {
   std::ostringstream headerStream;
 
-  headerStream << "HTTP/1.1 " << statusCode << " \r\n";
-  headerStream << "Content-Type: " << contentType << "\r\n";
-  headerStream << "Content-Length: " << contentLength << "\r\n";
-  headerStream << "Connection: keep-alive\r\n";
-  headerStream << "\r\n";
-  std::string header = headerStream.str();
+	headerStream << "HTTP/1.1 " << statusCode << " \r\n";
+	headerStream << "Content-Type: " << contentType << "\r\n";
+	headerStream << "Content-Length: " << contentLength << "\r\n";
+	headerStream << "Connection: keep-alive\r\n";
+	headerStream << "\r\n";
+	std::string header = headerStream.str();
 
 	return (header.c_str());
 }
@@ -32,16 +29,62 @@ void	HandleRequests::createPostResponse(std::string code)
 	file.close();
 	this->_response = createPostResponseHeader(content.str().size(), findContentType(this->_filePath), code) + content.str();
 }
+
+void HandleRequests::handleMultipartData(void)
+{
+	size_t boundary_start = this->_buffer.find("boundary=") + 9;
+	size_t boundary_end = this->_buffer.find("\r\n", boundary_start);
+	std::string boundary = this->_buffer.substr(boundary_start, boundary_end - boundary_start);
+
+	size_t header_end = this->_buffer.find("\r\n\r\n");
+	std::string body = this->_buffer.substr(header_end + 4);  // Extraire le corps après les en-têtes
+
+	std::string word;
+	std::string file_data;
+
+	size_t pos = 0;
+	while ((pos = body.find(boundary, pos)) != std::string::npos)
+	{
+		size_t part_start = pos + boundary.length();
+		size_t part_end = body.find(boundary, part_start);
+		std::string part = body.substr(part_start, part_end - part_start);
+		if (part.find("Content-Disposition: form-data; name=\"word\"") != std::string::npos)
+		{
+			size_t word_start = part.find("\r\n\r\n") + 4;
+			word = part.substr(word_start);  // Extraire la valeur du champ "word"
+			word = word.substr(0, word.find("\r\n"));  // Nettoyer les fins de ligne et espaces
+			std::cout << "Word received: " << word << std::endl;
+			setenv("WORD", word.c_str(), 1);
+		}
+		if (part.find("Content-Disposition: form-data; name=\"file\"") != std::string::npos)
+		{
+			size_t file_start = part.find("\r\n\r\n") + 4;
+			file_data = part.substr(file_start);  // Extraire le contenu du fichier si besoin
+			std::cout << "Data from file received" << std::endl;
+		}
+
+		pos = part_end;
+	}
+}
+
 void HandleRequests::postMethod(WebServer &webServData)
 {
+
 	initPostInfos(webServData);
 
 	if (isMethodAllowed(webServData.getAllowedMethods(this->getServerPort(this->_buffer), this->_rootUrl), "POST") == false)
 	{
 		createPostResponse("403 Forbidden");
 		return;
-	}	
+	}
 
+	if (this->_rootUrl.find("/cgi-bin/") == 0)
+	{
+		handleMultipartData();
+		std::string cgiOutput = cgiMethod(webServData);
+		this->_response = createPostResponseHeader(cgiOutput.size(), "text/plain", "200 OK") + cgiOutput;
+		return;
+	}
 	int fileFd = open(this->_filePath.c_str(), O_WRONLY | O_CREAT | O_NONBLOCK | O_TRUNC, 0644);
 	if (fileFd < 0) {
 		perror("Error opening file");
