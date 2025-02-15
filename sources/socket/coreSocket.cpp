@@ -127,9 +127,7 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 		int fileFd = data.getPostFileFds(client_fd);
 		std::string body = data.getPostBody(client_fd);
 		static size_t offset = 0; // Pour suivre l'écriture
-
 		ssize_t bytes_written = write(fileFd, body.c_str() + offset, body.size() - offset);
-
 		if (bytes_written < 0)
 		{
 			perror("Write error");
@@ -137,9 +135,7 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 			data.removePostFileFds(client_fd);
 			return -1;
 		}
-
 		offset += bytes_written;
-
 		if (offset >= body.size())
 		{
 			close(fileFd);
@@ -147,21 +143,16 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 			offset = 0;
 		}
 	}
-
 	if (data.responseBufferAbsent(client_fd))
 		return -1;
-
-const std::string &response = data.getResponseBuffer(client_fd);
-ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
-
-std::cout << "Bytes sent: " << bytes_sent << "/" << response.size() << std::endl;
-
+	const std::string &response = data.getResponseBuffer(client_fd);
+	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+	std::cout << "Bytes sent: " << bytes_sent << "/" << response.size() << std::endl;
 	if (bytes_sent < 0)
 	{
 		perror("SEND ERROR");
 		return -1;
 	}
-
 	data.eraseResponseBuffer(client_fd);
 	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 	close(client_fd);
