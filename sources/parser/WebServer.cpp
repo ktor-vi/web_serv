@@ -69,6 +69,7 @@ WebServer::WebServer(Config &conf)
 		for (kt = location_blocks.begin(); kt != kte; kt++)
 		{
 			Location location;
+			location.cgi = false;
 			location.path = kt->path;
 			std::map<std::string, std::string>::iterator lt;
 			std::map<std::string, std::string>::iterator lte = kt->directives.end();
@@ -224,10 +225,10 @@ void	WebServer::verifyServer() const
 		std::vector<Location>::iterator kte = locations.end();
 		for (kt = locations.begin(); kt != kte; kt++)
 		{
-			if (!kt->root.empty() && !opendir(kt->root.c_str()))
-			throw std::runtime_error("Bad Root Path");
+			if (!kt->root.empty() && access(kt->root.c_str(), F_OK) == -1)
+				throw std::runtime_error("Bad Root Path");
 			if (!kt->index_path.empty() && access(kt->index_path.c_str(), R_OK) != 0)
-			throw std::runtime_error("Bad Index Page Path");
+				throw std::runtime_error("Bad Index Page Path");
 			if (!kt->dir_default_path.empty() &&
 				access(kt->dir_default_path.c_str(), R_OK) != 0)
 			throw std::runtime_error("Bad Directory Page Path");

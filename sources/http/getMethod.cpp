@@ -81,7 +81,7 @@ void	HandleRequests::initGetInfos(WebServer &webServData)
     response << "HTTP/1.1 " << statusCode << " Moved Permanently\r\n";
     response << "Location: " << newLocation << "\r\n";
     response << "Content-Length: 0\r\n";
-    response << "Connection: close\r\n";
+    response << "Connection: close\r\n";	
     response << "\r\n";
     return response.str();
   }
@@ -96,7 +96,7 @@ void	HandleRequests::initGetInfos(WebServer &webServData)
     headerStream << "\r\n";
     std::string header = headerStream.str();
 
-    std::cout << ">>> HTTP RESPONSE <<< " << std::endl << header.c_str() << std::endl;
+   ///std::cout << ">>> HTTP RESPONSE <<< " << std::endl << header.c_str() << std::endl;
     return (header.c_str)();
   }
 
