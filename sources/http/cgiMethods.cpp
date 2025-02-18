@@ -32,6 +32,9 @@ std::string	HandleRequests::cgiExecution(void)
 {
 	int			pipefd[2];
 	std::string	result;
+	int 		status;
+	int			timeout = 10;
+	int			ret = 0;
 
 	if (pipe(pipefd) == -1)
 	{
@@ -50,7 +53,6 @@ std::string	HandleRequests::cgiExecution(void)
 		char *args[] = {const_cast<char *>(this->_filePath.c_str()), NULL};
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
-		// std::cout << "FILE_PATH = " << this->_fileName << std::endl;
 		extern char **environ;
 		execve(this->_filePath.c_str(), args, environ);
 		perror("execve problem");
@@ -59,16 +61,34 @@ std::string	HandleRequests::cgiExecution(void)
 	else
 	{
 		close(pipefd[1]);
+		make_socket_nonblocking(pipefd[0]);
 		char buffer[1024];
 		ssize_t bytesRead;
-
-		while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
+		// on laisse 10 tentative au CGI de se terminer (avec mySleep(10000) entre chaque check)
+		while (timeout-- != 0)
 		{
-			buffer[bytesRead] = '\0';
-			result += buffer;
+			ret = waitpid(pid, &status, WNOHANG);
+			// ret > 0, child dead sans erreur
+			if (ret > 0)
+				break;
+			mySleep(10000);
+		}
+		 // si il termine normalement, execute
+		if (WIFEXITED(status))
+		{
+			while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
+			{
+				buffer[bytesRead] = '\0';
+				result += buffer;
+			}
+		}
+		// sinon error, KILL le pid dans un etat ??
+		else
+		{
+			perror("CGI error");
+			kill(pid, SIGKILL);
 		}
 		close(pipefd[0]);
-		waitpid(pid, NULL, 0);
 	}
 	return (result);
 }
@@ -76,10 +96,8 @@ std::string	HandleRequests::cgiExecution(void)
 std::string HandleRequests::cgiMethod(WebServer &webServData)
 {
 	std::cout << "[ CGI HANDLING ]" << std::endl;
-
 	initCgiInfos(webServData);
 	std::string	result = this->cgiExecution();
-
 	return (result);
 }
 

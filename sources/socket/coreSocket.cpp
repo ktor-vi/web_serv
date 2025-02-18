@@ -13,15 +13,6 @@
 
 #define MAX_EVENTS 30
 
-/*Résumé des fonctions finales
-	Sockets : socket, bind, listen, accept.
-	Événements : epoll_create, epoll_ctl, epoll_wait
-	Communication : send, recv.
-	DNS : getaddrinfo, freeaddrinfo.
-	Processus : fork, signal, kill.
-	Fichiers : close, fcntl.
-*/
-
 void ft_webserver(WebServer &data)
 {
 	struct sockaddr_in		addr_client;
@@ -38,35 +29,38 @@ void ft_webserver(WebServer &data)
 		fds = epoll_wait(epoll_fd, t_events, MAX_EVENTS, -1); // Attente d'événements
 		if (fds == -1)
 			perror("EPOLL_WAIT ERROR");
-		i = -1;
-		while (++i < fds)
+		else
 		{
-			fd = t_events[i].data.fd;
-			if (ft_isit_fdsocket(data, fd)) // Nouvelle connexion
+			i = -1;
+			while (++i < fds)
 			{
-				client_fd = accept(fd, (struct sockaddr *)&addr_client, &addr_len);
-				if (client_fd < 0)
+				fd = t_events[i].data.fd;
+				if (ft_isit_fdsocket(data, fd)) // Nouvelle connexion
 				{
-					perror("ACCEPT ERROR");
-					continue;
+					client_fd = accept(fd, (struct sockaddr *)&addr_client, &addr_len);
+					if (client_fd < 0)
+					{
+						perror("ACCEPT ERROR");
+						break;
+					}
+					make_socket_nonblocking(client_fd);
+					t_event.events = EPOLLIN | EPOLLET; // Prêt à lire
+					t_event.data.fd = client_fd;
+					if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &t_event) == -1)
+					{
+						perror("EPOLL_CTL ADD CLIENT ERROR");
+						close(client_fd);
+						break;
+					}
 				}
-				make_socket_nonblocking(client_fd);
-				t_event.events = EPOLLIN | EPOLLET; // Prêt à lire
-				t_event.data.fd = client_fd;
-				if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &t_event) == -1)
-				{
-					perror("EPOLL_CTL ADD CLIENT ERROR");
-					close(client_fd);
-					continue;
-				}
-			}
-			else if (t_events[i].events & EPOLLIN){// Données à lire
-				if (handle_read_event(fd, epoll_fd, data) == -1) // Fonction pour lire les données
-    				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd);} // Ferme le socket après suppression de epoll
+				else if (t_events[i].events & EPOLLIN){// Données à lire
+					if (handle_read_event(fd, epoll_fd, data) == -1) // Fonction pour lire les données
+    					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd);} // sort le fd de la pool
 
-			else if (t_events[i].events & EPOLLOUT) // Prêt à écrire
-				if (handle_write_event(fd, epoll_fd, data) == -1) // Fonction pour envoyer la réponse
-					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd);
+				else if (t_events[i].events & EPOLLOUT) // Prêt à écrire
+					if (handle_write_event(fd, epoll_fd, data) == -1) // Fonction pour envoyer la réponse
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd); // sort le fd de la pool
+			}
 		}
 	}
 }
@@ -127,9 +121,7 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 		int fileFd = data.getPostFileFds(client_fd);
 		std::string body = data.getPostBody(client_fd);
 		static size_t offset = 0; // Pour suivre l'écriture
-
 		ssize_t bytes_written = write(fileFd, body.c_str() + offset, body.size() - offset);
-
 		if (bytes_written < 0)
 		{
 			perror("Write error");
@@ -137,9 +129,7 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 			data.removePostFileFds(client_fd);
 			return -1;
 		}
-
 		offset += bytes_written;
-
 		if (offset >= body.size())
 		{
 			close(fileFd);
@@ -147,21 +137,16 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 			offset = 0;
 		}
 	}
-
 	if (data.responseBufferAbsent(client_fd))
 		return -1;
-
-const std::string &response = data.getResponseBuffer(client_fd);
-ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
-
-std::cout << "Bytes sent: " << bytes_sent << "/" << response.size() << std::endl;
-
+	const std::string &response = data.getResponseBuffer(client_fd);
+	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+	///std::cout << "Bytes sent: " << bytes_sent << "/" << response.size() << std::endl;
 	if (bytes_sent < 0)
 	{
 		perror("SEND ERROR");
 		return -1;
 	}
-
 	data.eraseResponseBuffer(client_fd);
 	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 	close(client_fd);

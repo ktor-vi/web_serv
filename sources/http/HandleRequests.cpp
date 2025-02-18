@@ -106,8 +106,8 @@ HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int 
 		int method = whichMethod(this->_buffer);
 		if (method > 0)
 		{
-			std::cout << "<<< HTTP REQUEST RECEIVED >>>" << std::endl
-					  << this->_buffer << std::endl;
+			/*std::cout << "<<< HTTP REQUEST RECEIVED >>>" << std::endl
+					  << this->_buffer << std::endl;*/
 			switch (method)
 			{
 			case 1:

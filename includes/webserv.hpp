@@ -24,6 +24,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/file.h>
+#include <time.h>
 
 #include "../class/HandleRequests.hpp"
 #include "struct.hpp"
@@ -48,4 +49,6 @@ char *ft_call_cgi(char *ans);
 // HTTP PART
 bool		isADirectory(std::string path);
 std::string	findContentType(std::string url);
+void		mySleep(unsigned int microseconds);
+
 #endif
