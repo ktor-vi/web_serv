@@ -43,6 +43,9 @@ class HandleRequests
 		bool		isMethodAllowed(const std::vector<std::string> methods, const std::string asked);
 		std::string errorPageToBody(int error_code, WebServer &data);
 
+    //autoIndexPage.cpp
+    void    buildAutoIndexResponse(const std::string &path);
+
 	private:
 		int					_clientFd;
 		int 				_epollFd;

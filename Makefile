@@ -26,7 +26,7 @@ all: $(EXECUTABLE_NAME)
 # Création de l'exécutable
 $(EXECUTABLE_NAME): $(OBJECTS)
 	@echo "$(BLUE)Linking...$(NC)"
-	@$(COMPILATOR) $(OBJECTS) -o $@
+	@$(COMPILATOR) $(OBJECTS) -o  $@
 	@echo "$(GREEN)Compilation et linking réussis!$(NC)"
 
 # Compilation des fichiers objets
