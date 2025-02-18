@@ -85,10 +85,7 @@ int handle_read_event(int client_fd, int epoll_fd, WebServer &data)
 				break;
 		}
 		else if (bytesRead == 0)
-		{
-			std::cout << "Client deco ??" << std::endl;
 			break;
-		}
 		else if (bytesRead <= 0)
 		{
 			throw(std::out_of_range("recv"));

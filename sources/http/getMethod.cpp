@@ -116,6 +116,7 @@ void HandleRequests::getMethod(WebServer &webServData)
     this->_response = createRedirectResponse(webServData.getRedirect(this->_port, this->_rootUrl).first, webServData.getRedirect(this->_port, this->_rootUrl).second);
     return;
   }
+  std::cout << this->_rootUrl << std::endl;
   if(webServData.getAutoindex(this->_port, this->_rootUrl) && this->_url[this->_url.length() - 1] == '/')
   {
     buildAutoIndexResponse(this->_rootDir);
