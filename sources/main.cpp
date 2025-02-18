@@ -16,12 +16,11 @@ int main()
   }
 	if (config.parseFile("config.conf"))
 	{
-    	//config.printConfig();
     	WebServer web_serv(config);
-
+	try
+	{
     	web_serv.printServer();
     	web_serv.verifyServer();
-		//web_serv.printServer();
 		ft_webserver(web_serv);
 	}
 	catch(const std::exception& e)
