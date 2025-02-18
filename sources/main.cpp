@@ -5,16 +5,21 @@ void handle_sigint(int sig) {
 	exit(0);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
 	Config config;
 
+	if (argc < 2)
+	{
+		perror ("Bad arguments");
+		return (1);
+	}
 	if (signal(SIGINT, handle_sigint) == SIG_ERR)
 	{
 		perror("Erreur lors de l'enregistrement du signal SIGINT");
 		exit(1);
 	}
-	if (config.parseFile("config.conf"))
+	if (config.parseFile(argv[1]))
 	{
 		WebServer web_serv(config);
 		try

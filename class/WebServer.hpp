@@ -8,6 +8,7 @@ class Config;
 class WebServer
 	{
 		private:
+			std::string					conf;
 			std::vector<Server>			servers;
 			std::map<int, std::string>	serverNames;
 			std::map<int, std::string>	responseBuffer; // Associe un client_fd à sa réponse
