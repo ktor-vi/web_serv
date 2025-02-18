@@ -196,6 +196,11 @@ WebServer::WebServer(Config &conf)
 			}
 			server.locations.push_back(location);
 		}
+		Location errors;
+		errors.allowed_methods.push_back("GET");
+		errors.path = "/_errors/";
+		errors.root = "sources/html/error_pages/";
+		server.locations.push_back(errors);
 	servers.push_back(server);
 	}
 }
@@ -304,6 +309,7 @@ void	WebServer::printServer() const
 			}
 			std::cout << std::endl;
 		}
+
 		std::cout << std::endl;
 	}
 }

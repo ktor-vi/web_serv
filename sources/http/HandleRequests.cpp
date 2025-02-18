@@ -82,7 +82,7 @@ bool	HandleRequests::isMethodAllowed(const std::vector<std::string> methods, con
 		if (methods[i] == asked)
 			return (true);
 	}
-  	throw(std::out_of_range("Not allowed method"));
+  	// throw(std::out_of_range("Not allowed method"));
 	return (false);
 }
 
