@@ -1,20 +1,22 @@
 #include "../../class/Config.hpp"
+
 Config::Config() : lineNumber(0) {}
+
 Config::~Config() {}
 
 bool Config::parseFile(const std::string &fileName)
-{
+{ 
   std::ifstream configFile(fileName.c_str());
   if (!configFile) {
-    std::cerr << "Error: can't open file." << std::endl;
+    std::cerr << "Error: can't open file '" << fileName << "'." << std::endl;
     return false;
   }
-
 
   std::stack<std::string> blockStack;
   ServerBlock currentServer;
   LocationBlock currentLocation;
   bool inLocationBlock = false;
+  bool hasValidBlocks = false;
 
   std::string line;
   while (std::getline(configFile, line)) {
@@ -24,10 +26,12 @@ bool Config::parseFile(const std::string &fileName)
     if (line.empty() || line[0] == '#')
       continue;
 
-    try
-	{
+    try {
+      std::cout << "Parsing line " << lineNumber << ": " << line << std::endl;
+
       if (line.find("{") != std::string::npos) {
-        // Début d'un bloc
+        hasValidBlocks = true;
+
         if (line.find("server") == 0) {
           blockStack.push("server");
           currentServer = ServerBlock();
@@ -36,21 +40,28 @@ bool Config::parseFile(const std::string &fileName)
           inLocationBlock = true;
 
           size_t pos = line.find(" ");
-          if (pos == std::string::npos) {
-            throw std::runtime_error("Invalid/missing path or bad syntax.");
+          size_t openBracePos = line.find("{");
+
+          if (pos == std::string::npos || openBracePos == std::string::npos || openBracePos <= pos) {
+            throw std::runtime_error("Invalid location block syntax.");
           }
 
-          currentLocation.path = trim(line.substr(pos, line.find("{") - pos));
+          if (openBracePos - pos <= 1) {
+            throw std::runtime_error("Location path is missing.");
+          }
+
+          std::cout << "Location path parsing: pos=" << pos << ", openBracePos=" << openBracePos << std::endl;
+
+          currentLocation.path = trim(line.substr(pos, openBracePos - pos));
           if (currentLocation.path.empty()) {
-            throw std::runtime_error("Path empty.");
+            throw std::runtime_error("Path cannot be empty.");
           }
         } else {
           throw std::runtime_error("Unknown block type.");
         }
       } else if (line.find("}") != std::string::npos) {
-        // Fin d'un bloc
         if (blockStack.empty()) {
-          throw std::runtime_error("Closing block without opening block.");
+          throw std::runtime_error("Closing block without an opening block.");
         }
 
         std::string blockType = blockStack.top();
@@ -65,7 +76,6 @@ bool Config::parseFile(const std::string &fileName)
           currentServer = ServerBlock();
         }
       } else {
-        // Directive clé-valeur
         size_t pos = line.find(";");
         if (pos == std::string::npos) {
           throw std::runtime_error("Bad directive (missing ';').");
@@ -74,11 +84,16 @@ bool Config::parseFile(const std::string &fileName)
         std::string directive = line.substr(0, pos);
         size_t spacePos = directive.find_first_not_of(" ");
         size_t keyEnd = directive.find_first_of(" ", spacePos);
+
+        if (keyEnd == std::string::npos || spacePos == std::string::npos) {
+          throw std::runtime_error("Bad directive (missing key or value).");
+        }
+
         std::string key = trim(directive.substr(0, keyEnd));
         std::string value = trim(directive.substr(keyEnd));
 
-        if (spacePos == std::string::npos) {
-          throw std::runtime_error("Bad directive (missing key or value).");
+        if (key.empty() || value.empty()) {
+          throw std::runtime_error("Bad directive (empty key or value).");
         }
 
         if (inLocationBlock) {
@@ -93,16 +108,24 @@ bool Config::parseFile(const std::string &fileName)
           }
         }
       }
-    }
-	catch (const std::runtime_error &e) {
+    } catch (const std::runtime_error &e) {
       std::cerr << "Error on line " << lineNumber << ": " << e.what() << "\n";
       return false;
     }
   }
 
-  // Vérification : blocs non fermés
+  if (!hasValidBlocks) {
+    std::cerr << "Error: No valid configuration blocks found.\n";
+    return false;
+  }
+
   if (!blockStack.empty()) {
-    std::cerr << "Error : Block not closed.\n";
+    std::cerr << "Error: Block not closed.\n";
+    return false;
+  }
+
+  if (servers.empty()) {
+    std::cerr << "Error: No valid configuration found in the file.\n";
     return false;
   }
 
@@ -110,6 +133,11 @@ bool Config::parseFile(const std::string &fileName)
 }
 
 void Config::printConfig() const {
+  if (servers.empty()) {
+    std::cout << "No valid servers found in the configuration.\n";
+    return;
+  }
+
   for (size_t i = 0; i < servers.size(); ++i) {
     std::cout << "Server " << i + 1 << ":\n";
     std::cout << "  Listen: " << servers[i].listen << "\n";
@@ -132,10 +160,17 @@ void Config::printConfig() const {
     }
   }
 }
+
 const std::vector<ServerBlock> &Config::getServers() const { return servers; }
 
 std::string Config::trim(const std::string &str) const {
+  if (str.empty())
+    return "";
+
   size_t start = str.find_first_not_of(" \t");
+  if (start == std::string::npos) // Si la ligne contient uniquement des espaces
+    return "";
+
   size_t end = str.find_last_not_of(" \t");
-  return (start == std::string::npos) ? "" : str.substr(start, end - start + 1);
+  return str.substr(start, end - start + 1);
 }
