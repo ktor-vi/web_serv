@@ -33,6 +33,8 @@ void	HandleRequests::initGetInfos(WebServer &webServData)
     this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
     if(!webServData.getIndexPath(this->_port, this->_rootUrl).empty())
       this->_filePath = webServData.getIndexPath(this->_port, this->_rootUrl);
+    else if(webServData.getAutoindex(this->_port, this->_rootUrl))
+      return;
     else
       this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
   }
@@ -116,6 +118,7 @@ void HandleRequests::getMethod(WebServer &webServData)
     this->_response = createRedirectResponse(webServData.getRedirect(this->_port, this->_rootUrl).first, webServData.getRedirect(this->_port, this->_rootUrl).second);
     return;
   }
+  std::cout << this->_rootUrl << std::endl;
   if(webServData.getAutoindex(this->_port, this->_rootUrl) && this->_url[this->_url.length() - 1] == '/')
   {
     buildAutoIndexResponse(this->_rootDir);

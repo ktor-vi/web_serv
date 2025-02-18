@@ -56,7 +56,7 @@ WebServer::WebServer(Config &conf)
 			err.second = jt->second.substr(jt->second.find_first_of(" ") + 1);
 			if (err.second[0] == '/')
 				err.second = err.second.substr(1);
-      server.error_pages.erase(err.first);
+      		server.error_pages.erase(err.first);
 			server.error_pages.insert(err);
 			}
 			else
@@ -70,6 +70,7 @@ WebServer::WebServer(Config &conf)
 		{
 			Location location;
 			location.cgi = false;
+			location.autoindex = false;
 			location.path = kt->path;
 			std::map<std::string, std::string>::iterator lt;
 			std::map<std::string, std::string>::iterator lte = kt->directives.end();
@@ -101,7 +102,11 @@ WebServer::WebServer(Config &conf)
 				{
 					if (lt->second != "on" && lt->second != "off")
 					  throw std::runtime_error("Error: autoindex can only be on or off");
-					location.autoindex = lt->second == "on" ? true : false;
+					
+					if(lt->second == "on")
+						location.autoindex = true;
+					else 
+						location.autoindex = false;
 				}
 				else if (lt->first == "cgi")
 				{
