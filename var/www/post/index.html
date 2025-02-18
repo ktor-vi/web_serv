@@ -15,7 +15,7 @@
 		<h2>Supprimer un fichier via DELETE</h2>
 		<input type="text" id="fileName" placeholder="Nom du fichier à supprimer">
 		<button onclick="deleteFile()">Supprimer</button>
-		<img src="trash.png" alt="Poubelle" width="50" height="50">
+		<img id="trashImage" src="trash.png" alt="Poubelle" width="50" height="50">
 		<div id="imageContainer">Aucune image envoyée</div>
 	</div>
 
@@ -38,7 +38,7 @@
 			.then(response => response.text())
 			.then(data => {
 				console.log("Réponse du serveur :", data);
-				displayImage(URL.createObjectURL(file));
+				displayImage(URL.createObjectURL(file), file.name);
 			})
 			.catch(error => console.error("Erreur :", error));
 		}
@@ -53,19 +53,41 @@
 			fetch(`http://localhost:8080/uploads/${fileName}`, {
 				method: "DELETE"
 			})
-			.then(response => response.text())
-			.then(data => {
-				console.log("Fichier supprimé :", data);
+			.then(response => {
+				const trashImage = document.getElementById('trashImage');
+				if (response.status === 200) {
+					console.log("Fichier supprimé :", fileName);
+					removeImage(fileName);
+					trashImage.src = "trash.png";  // Afficher trash.png si la réponse est 200
+				} else {
+					console.log("Erreur lors de la suppression :", response.status);
+					trashImage.src = "trash2.png"; // Afficher trash2.png si la réponse est autre que 200
+				}
+				return response.text();
 			})
-			.catch(error => console.error("Erreur :", error));
+			.then(data => console.log(data))
+			.catch(error => {
+				console.error("Erreur :", error);
+				const trashImage = document.getElementById('trashImage');
+				trashImage.src = "trash2.png"; // Afficher trash2.png en cas d'erreur réseau
+			});
 		}
 
-		function displayImage(src) {
+		function displayImage(src, fileName) {
 			const container = document.getElementById('imageContainer');
 			container.innerHTML = "";
 			const img = document.createElement('img');
 			img.src = src;
+			img.alt = fileName;
+			img.id = `img-${fileName}`;
 			container.appendChild(img);
+		}
+
+		function removeImage(fileName) {
+			const img = document.getElementById(`img-${fileName}`);
+			if (img) {
+				img.remove();
+			}
 		}
 	</script>
 </body>

@@ -181,9 +181,9 @@ WebServer::WebServer(Config &conf)
 				if (!location.dir_default_path.empty())
 				{
 					if (location.dir_default_path[0] == '/')
-					location.dir_default_path = server.root + location.dir_default_path;
+						location.dir_default_path = server.root + location.dir_default_path;
 					else
-					location.dir_default_path =
+						location.dir_default_path =
 						server.root + "/" + location.dir_default_path;
 				}
 				if (!location.cgi_path.empty())
