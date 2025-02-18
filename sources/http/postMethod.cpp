@@ -18,6 +18,7 @@ static std::string createPostResponseHeader(size_t contentLength, const std::str
 	headerStream << "\r\n";
 	std::string header = headerStream.str();
 
+std::cout << std::endl << ">>> HTTP POST RESPONSE <<< " << std::endl << header.c_str() << "////////////////" << std::endl;
 	return (header.c_str());
 }
 

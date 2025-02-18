@@ -84,7 +84,7 @@ static std::string createGetResponseHeader(size_t contentLength, const std::stri
   headerStream << "\r\n";
   std::string header = headerStream.str();
 
-  ///std::cout << ">>> HTTP RESPONSE <<< " << std::endl << header.c_str() << std::endl;
+std::cout << std::endl << ">>> HTTP GET RESPONSE <<< " << std::endl << header.c_str() << "////////////////" << std::endl;
   return (header.c_str)();
 }
 

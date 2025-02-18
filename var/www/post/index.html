@@ -8,22 +8,22 @@
 </head>
 <body>
 	<div class="container">
-		<h2>Tester l'envoi d'un fichier via POST</h2>
+		<h2>Send a file with POST</h2>
 		<input type="file" id="fileInput">
-		<button onclick="sendFile()">Envoyer</button>
+		<button onclick="sendFile()">Send</button>
 
-		<h2>Supprimer un fichier via DELETE</h2>
-		<input type="text" id="fileName" placeholder="Nom du fichier à supprimer">
-		<button onclick="deleteFile()">Supprimer</button>
-		<img id="trashImage" src="trash.png" alt="Poubelle" width="50" height="50">
-		<div id="imageContainer">Aucune image envoyée</div>
+		<h2>DELETE a file</h2>
+		<input type="text" id="fileName" placeholder="Name of file to delete: ">
+		<button onclick="deleteFile()">Delete</button>
+		<img id="trashImage" src="trash.png" alt="Trash" width="50" height="50">
+		<div id="imageContainer">No images send</div>
 	</div>
 
 	<script>
 		function sendFile() {
 			const fileInput = document.getElementById('fileInput');
 			if (fileInput.files.length === 0) {
-				alert("Veuillez sélectionner un fichier.");
+				alert("Select a file");
 				return;
 			}
 
@@ -37,16 +37,16 @@
 			})
 			.then(response => response.text())
 			.then(data => {
-				console.log("Réponse du serveur :", data);
+				console.log("Server response:", data);
 				displayImage(URL.createObjectURL(file), file.name);
 			})
-			.catch(error => console.error("Erreur :", error));
+			.catch(error => console.error("Error: ", error));
 		}
 
 		function deleteFile() {
 			const fileName = document.getElementById('fileName').value.trim();
 			if (fileName === "") {
-				alert("Veuillez entrer un nom de fichier.");
+				alert("Enter a file's name.");
 				return;
 			}
 
@@ -56,18 +56,18 @@
 			.then(response => {
 				const trashImage = document.getElementById('trashImage');
 				if (response.status === 200) {
-					console.log("Fichier supprimé :", fileName);
+					console.log("Deleted file: ", fileName);
 					removeImage(fileName);
 					trashImage.src = "trash.png";  // Afficher trash.png si la réponse est 200
 				} else {
-					console.log("Erreur lors de la suppression :", response.status);
+					console.log("Error when remonving: ", response.status);
 					trashImage.src = "trash2.jpg"; // Afficher trash2.png si la réponse est autre que 200
 				}
 				return response.text();
 			})
 			.then(data => console.log(data))
 			.catch(error => {
-				console.error("Erreur :", error);
+				console.error("Error :", error);
 				const trashImage = document.getElementById('trashImage');
 				trashImage.src = "trash2.jpg"; // Afficher trash2.png en cas d'erreur réseau
 			});

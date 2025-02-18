@@ -9,14 +9,14 @@ void HandleRequests::initCgiInfos(WebServer &webServData)
 	size_t end = this->_buffer.find(" HTTP/");
 	if (start == std::string::npos || end == std::string::npos)
 	{
-		std::cerr << "Erreur : URL CGI introuvable dans la requête" << std::endl;
+		std::cerr << "Error: CGI url not found in the request" << std::endl;
 		return;
 	}
 	std::string requestUrl = this->_buffer.substr(start, end - start);
     size_t lastSlash = requestUrl.find_last_of('/');
     if (lastSlash == std::string::npos)
     {
-        std::cerr << "Erreur : Chemin CGI invalide" << std::endl;
+        std::cerr << "Error: invalid CGI path" << std::endl;
         return;
     }
     this->_fileName = requestUrl.substr(lastSlash + 1);
@@ -39,13 +39,13 @@ std::string	HandleRequests::cgiExecution(void)
 	if (pipe(pipefd) == -1)
 	{
 		perror("pipe");
-		return ("Error CGI");
+		return ("Error: CGI");
 	}
 	pid_t pid = fork();
 	if (pid == -1)
 	{
 		perror("fork");
-		return ("Error CGI");
+		return ("Error: CGI");
 	}
 	if (pid == 0)
 	{
