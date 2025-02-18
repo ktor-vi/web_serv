@@ -60,7 +60,7 @@ WebServer::WebServer(Config &conf)
 			server.error_pages.insert(err);
 			}
 			else
-			throw std::runtime_error("Error: unknown server directive.");
+			  throw std::runtime_error("Error: unknown server directive.");
 		}
 
 		std::vector<LocationBlock> location_blocks = it->locations;
@@ -99,14 +99,14 @@ WebServer::WebServer(Config &conf)
 				}
 				else if (lt->first == "autoindex")
 				{
-					if (lt->second != "on" || lt->second != "off")
-					throw std::runtime_error("Error: autoindex can only be on or off");
+					if (lt->second != "on" && lt->second != "off")
+					  throw std::runtime_error("Error: autoindex can only be on or off");
 					location.autoindex = lt->second == "on" ? true : false;
 				}
 				else if (lt->first == "cgi")
 				{
 					if (lt->second != "on" && lt->second != "off")
-					throw std::runtime_error("Error: cgi can only be on or off");
+					  throw std::runtime_error("Error: cgi can only be on or off");
 					location.cgi = lt->second == "on" ? true : false;
 				}
 				else if (lt->first == "cgi_depends")
