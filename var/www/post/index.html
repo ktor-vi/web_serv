@@ -61,7 +61,7 @@
 					trashImage.src = "trash.png";  // Afficher trash.png si la réponse est 200
 				} else {
 					console.log("Erreur lors de la suppression :", response.status);
-					trashImage.src = "trash2.png"; // Afficher trash2.png si la réponse est autre que 200
+					trashImage.src = "trash2.jpg"; // Afficher trash2.png si la réponse est autre que 200
 				}
 				return response.text();
 			})
@@ -69,7 +69,7 @@
 			.catch(error => {
 				console.error("Erreur :", error);
 				const trashImage = document.getElementById('trashImage');
-				trashImage.src = "trash2.png"; // Afficher trash2.png en cas d'erreur réseau
+				trashImage.src = "trash2.jpg"; // Afficher trash2.png en cas d'erreur réseau
 			});
 		}
 

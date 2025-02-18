@@ -9,10 +9,11 @@ int main(int argc, char **argv)
 {
 	Config config;
 
-	if (argc < 2)
+	(void)argv;
+	if (argc != 2)
 	{
-		perror ("Bad arguments");
-		return (1);
+		std::cerr << "Error: Bad arguments" << std::endl;
+		exit(1);
 	}
 	if (signal(SIGINT, handle_sigint) == SIG_ERR)
 	{
@@ -28,12 +29,12 @@ int main(int argc, char **argv)
 			web_serv.verifyServer();
 			ft_webserver(web_serv);
 		}
-		catch(const std::exception& e)
+		catch (const std::exception& e)
 		{
 			std::cerr << "Error: " << e.what() << '\n';
 		}
 	} 
 	else
-		std::cerr << "Erreur lors du parsing du fichier de configuration." << std::endl;
+		return (1);
 	return (0);
 }
