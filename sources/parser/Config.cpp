@@ -24,7 +24,8 @@ bool Config::parseFile(const std::string &fileName)
     if (line.empty() || line[0] == '#')
       continue;
 
-    try {
+    try
+	{
       if (line.find("{") != std::string::npos) {
         // Début d'un bloc
         if (line.find("server") == 0) {
@@ -92,7 +93,8 @@ bool Config::parseFile(const std::string &fileName)
           }
         }
       }
-    } catch (const std::runtime_error &e) {
+    }
+	catch (const std::runtime_error &e) {
       std::cerr << "Error on line " << lineNumber << ": " << e.what() << "\n";
       return false;
     }

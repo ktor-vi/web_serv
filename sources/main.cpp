@@ -18,11 +18,18 @@ int main()
 	{
     	// config.printConfig();
     	WebServer web_serv(config);
-
+	try
+	{
     	web_serv.printServer();
     	web_serv.verifyServer();
 		web_serv.printServer();
 		ft_webserver(web_serv);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Error: " << e.what() << '\n';
+	}
+	
   } 
   else
   	std::cerr << "Erreur lors du parsing du fichier de configuration." << std::endl;
