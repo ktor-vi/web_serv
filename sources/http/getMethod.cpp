@@ -33,6 +33,8 @@ void	HandleRequests::initGetInfos(WebServer &webServData)
     this->_rootDir = webServData.getRootPath(this->_port, this->_rootUrl);
     if(!webServData.getIndexPath(this->_port, this->_rootUrl).empty())
       this->_filePath = webServData.getIndexPath(this->_port, this->_rootUrl);
+    else if(webServData.getAutoindex(this->_port, this->_rootUrl))
+      return;
     else
       this->_filePath = this->_rootDir + "/" + this->_url.substr(this->_url.find_last_of("/") + 1);
   }
