@@ -12,7 +12,7 @@ void HandleRequests::initDeleteInfos(WebServer &webServData)
 	this->_filePath = this->_rootDir + this->_fileName;
 }
 
-static std::string createDeleteResponseHeader(const std::string &statusCode)
+std::string HandleRequests::createDeleteResponseHeader(const std::string &statusCode)
 {
     std::ostringstream headerStream;
     headerStream << "HTTP/1.1 " << statusCode << " \r\n";
@@ -21,6 +21,7 @@ static std::string createDeleteResponseHeader(const std::string &statusCode)
     headerStream << "Connection: keep-alive\r\n";
     headerStream << "\r\n";
 	
+	this->_keepAlive = 1;
     return headerStream.str();
 }
 

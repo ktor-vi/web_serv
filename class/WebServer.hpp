@@ -15,6 +15,7 @@ class WebServer
 			std::map<int, std::string>	requestBuffer; // Associe un client_fd à sa réponse
 			std::map<int, std::string>	postBody; // Associe un client_fd à sa postBody
 			std::map<int, int>			postFileFds;
+			int							keepAlive;
 
 		public:
 			WebServer(Config &conf);
@@ -56,6 +57,8 @@ class WebServer
 			void							removePostFileFds(int client_fd);
 
 			std::string						&getRequestBuffer(int client_fd);
+
+			void							setKeepAlive(int value);
 	};
 
 #endif

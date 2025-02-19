@@ -2,6 +2,12 @@
 
 class WebServer;
 
+int	HandleRequests::getKeepAlive(void)
+{
+	return (this->_keepAlive);
+}
+
+
 static int whichMethod(std::string str)
 {
 	if (str.find("GET") != std::string::npos)
@@ -99,6 +105,7 @@ HandleRequests::HandleRequests(std::string request ,WebServer &webServData, int 
 {
 	try
 	{
+		this->_keepAlive = 0;
 		this->_port = this->getServerPort(this->_buffer);
 		initURLs();
 		if (webServData.getCGIStatus(this->_port, this->_rootUrl))

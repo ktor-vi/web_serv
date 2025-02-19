@@ -93,6 +93,7 @@ int handle_read_event(int client_fd, int epoll_fd, WebServer &data)
 		// std::cout << "Total data received:\n" << totalData << "\n";
 	}
 	HandleRequests requestHandler(request, data, epoll_fd, client_fd);
+	data.setKeepAlive(requestHandler.getKeepAlive());
 	data.setResponseBuffer(client_fd, requestHandler.getResponse());
 
 	// Passer en mode écriture (EPOLLOUT)

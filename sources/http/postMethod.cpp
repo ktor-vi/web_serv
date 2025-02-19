@@ -7,7 +7,7 @@ void HandleRequests::initPostInfos(WebServer &webServData)
 	this->_filePath = this->_rootDir + this->_fileName;
 }
 
-static std::string createPostResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
+std::string HandleRequests::createPostResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode)
 {
   std::ostringstream headerStream;
 
@@ -16,9 +16,10 @@ static std::string createPostResponseHeader(size_t contentLength, const std::str
 	headerStream << "Content-Length: " << contentLength << "\r\n";
 	headerStream << "Connection: keep-alive\r\n";
 	headerStream << "\r\n";
-	std::string header = headerStream.str();
 
-std::cout << std::endl << "-------------------------" << std::endl << ">>> HTTP POST RESPONSE <<< " << std::endl << header.c_str() << "-------------------------" << std::endl;
+	std::string header = headerStream.str();
+	this->_keepAlive = 1;
+	std::cout << std::endl << "-------------------------" << std::endl << ">>> HTTP POST RESPONSE <<< " << std::endl << header.c_str() << "-------------------------" << std::endl;
 	return (header.c_str());
 }
 

@@ -656,4 +656,10 @@ std::string&	WebServer::getRequestBuffer(int client_fd)
 	return this->requestBuffer[client_fd];
 }
 
+void	WebServer::setKeepAlive(int value)
+{
+	this->keepAlive = value;
+	return ;
+}
+
 WebServer::~WebServer() {}

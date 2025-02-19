@@ -30,10 +30,10 @@ void HandleRequests::initCgiInfos(WebServer &webServData)
 
 static std::vector<char *>	buildEnv(std::string rootDir, std::string fileName, std::string filePath)
 {
-	std::vector<std::string> envVars;
-	std::vector<char *> envPtrs;
- 	std::vector<char *> mergedEnv;
-	extern char			**environ;
+	std::vector<std::string>	envVars;
+	std::vector<char *>			envPtrs;
+ 	std::vector<char *>			mergedEnv;
+	extern char					**environ;
 
 	envVars.push_back("SCRIPT_FILENAME=" + filePath);
 	envVars.push_back("PATH_INFO=" + fileName);
@@ -77,12 +77,12 @@ std::string	HandleRequests::cgiExecution(void)
 	}
 	if (pid == 0)
 	{
-		close(pipefd[0]);
 		char *args[] = {const_cast<char *>(this->_filePath.c_str()), NULL};
+		std::vector<char *> env = buildEnv(this->_rootDir, this->_fileName, this->_filePath);
+
+		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
-
-		std::vector<char *> env = buildEnv(this->_rootDir, this->_fileName, this->_filePath);
 		execve(this->_filePath.c_str(), args, &env[0]);
 		perror("execve problem");
 		exit(1);

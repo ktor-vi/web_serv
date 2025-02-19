@@ -20,20 +20,24 @@ class HandleRequests
 		
 		// deleteMethod.cpp
 		void		initDeleteInfos(WebServer &webServData);
+		std::string	createDeleteResponseHeader(const std::string &statusCode);
 		bool		isItLocked(std::string path);
 		void		deleteMethod(WebServer &webServData);
 
 		// getMethod.cpp
 		std::string findFolder(std::string url);
 		void		initGetInfos(WebServer &webServData);
+		std::string	createGetResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode);
 		void		getMethod(WebServer &webServData);
 
 		// postMethod.cpp
 		void		getUploadsLocation(WebServer &webServData);
+		std::string	createPostResponseHeader(size_t contentLength, const std::string &contentType, const std::string &statusCode);
 		void		createPostResponse(std::string code);
 		void		postMethod(WebServer &webServData);
 
 		// HandleRequests.cpp
+		int			getKeepAlive(void);
 		void		initPostInfos(WebServer &webServData);
 		int			getServerPort(std::string req);
 		void		setBuffer(std::string buffer);
@@ -63,6 +67,7 @@ class HandleRequests
 		std::string			_header;
 		std::string			_response;
 		std::string			_uploadsLocations;
+		int					_keepAlive;
 
 };
 
