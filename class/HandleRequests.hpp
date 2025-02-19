@@ -9,13 +9,13 @@ class HandleRequests
 	public:
 		HandleRequests(std::string request, WebServer &webServData, int epoll_fd, int client_fd);
 		HandleRequests(const HandleRequests &copy);
-		HandleRequests	&operator=(const HandleRequests &rhs);
+		HandleRequests &operator=(const HandleRequests &rhs);
 		~HandleRequests(void);
 		
 		// cgiMethods.cpp
 		void		initCgiInfos(WebServer &webServData);
 		std::string	cgiExecution(void);
-		void handleMultipartData(void);
+		void		handleMultipartData(void);
 		std::string	cgiMethod(WebServer &webServData);
 		
 		// deleteMethod.cpp

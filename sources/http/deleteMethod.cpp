@@ -20,6 +20,7 @@ static std::string createDeleteResponseHeader(const std::string &statusCode)
     headerStream << "Content-Length: 0\r\n";
     headerStream << "Connection: keep-alive\r\n";
     headerStream << "\r\n";
+	
     return headerStream.str();
 }
 
