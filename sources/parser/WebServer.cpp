@@ -662,4 +662,9 @@ void	WebServer::setKeepAlive(int value)
 	return ;
 }
 
+int	WebServer::getKeepAlive(void)
+{
+	return (this->keepAlive);
+}
+
 WebServer::~WebServer() {}

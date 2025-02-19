@@ -59,6 +59,7 @@ class WebServer
 			std::string						&getRequestBuffer(int client_fd);
 
 			void							setKeepAlive(int value);
+			int								getKeepAlive(void);
 	};
 
 #endif
