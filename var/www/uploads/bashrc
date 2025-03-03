@@ -1,0 +1,118 @@
+# Historique : Sauvegarde un plus grand nombre de commandes et évite les doublons
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoredups:erasedups  # Ne pas enregistrer les doublons
+shopt -s histappend  # Ajouter à l'historique plutôt que d'écraser
+export PATH+=":/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+alias francinette=/Users/jepatern/francinette/tester.sh
+alias paco=/Users/jepatern/francinette/tester.sh
+num_cores=$(sysctl -n hw.logicalcpu)
+alias mak="make -j$num_cores"
+alias makf="make fclean && rm -rf *.dSYM && clear"
+alias makre="clear && make clean && mak && ./*.exe"
+alias cclean='bash ~/Cleaner_42.sh'
+alias valgrind="/Users/jepatern/homebrew/bin/valgrind"
+# Afficher l'historique avec les dates et heures
+export HISTTIMEFORMAT="%d/%m/%y %T "
+
+# Couleurs pour ls et autres commandes
+export CLICOLOR=1
+export LSCOLORS=GxFxCxDxBxegedabagaced  # Définit les couleurs de 'ls' sur macOS
+
+# Alias pratiques
+alias ll='ls -lFh'  # Format long avec unités lisibles
+alias la='ls -A'  # Liste tous les fichiers sauf . et ..
+alias l='ls -CF'  # Liste avec indication du type de fichier
+alias ..='cd ..'
+alias ...='cd ../..'
+alias grep='grep --color=auto'  # Grep avec coloration syntaxique
+alias df='df -h'  # Affichage du disque avec tailles humaines
+alias du='du -h'  # Utilisation du disque avec tailles humaines
+alias cls='clear'  # Raccourci pour clear
+
+# Fonction pour aller rapidement dans un répertoire
+function cdd() {
+  cd "$1" && ls
+}
+
+# Fonction pour créer et aller dans un répertoire
+function mkcd() {
+  mkdir -p "$1" && cd "$1"
+}
+
+# Fonction pour rechercher dans les fichiers
+function fsearch() {
+  grep -rnw '.' -e "$1"
+}
+
+# Fonction pour extraire des fichiers compressés
+function extract() {
+  if [ -f "$1" ] ; then
+    case "$1" in
+      *.tar.bz2)   tar xvjf "$1"    ;;
+      *.tar.gz)    tar xvzf "$1"    ;;
+      *.tar.xz)    tar xvJf "$1"    ;;
+      *.bz2)       bunzip2 "$1"     ;;
+      *.rar)       unrar x "$1"     ;;
+      *.gz)        gunzip "$1"      ;;
+      *.tar)       tar xvf "$1"     ;;
+      *.tbz2)      tar xvjf "$1"    ;;
+      *.tgz)       tar xvzf "$1"    ;;
+      *.zip)       unzip "$1"       ;;
+      *.xz)        unxz "$1"        ;;
+      *.7z)        7z x "$1"        ;;
+      *)           echo "'$1' ne peut pas être extrait via extract()" ;;
+    esac
+  else
+    echo "'$1' n'est pas un fichier valide"
+  fi
+}
+
+# Prompt personnalisé avec couleurs (affiche user@hostname:current_dir $)
+PS1='\[\e[32m\]\u@\h\[\e[m\]:\[\e[34m\]\w\[\e[m\]\$ '
+
+# Ajout des chemins utiles
+export PATH="$HOME/bin:/usr/local/bin:$PATH"
+
+# Autocompletion plus rapide
+bind 'set show-all-if-ambiguous on'
+bind 'TAB:menu-complete'
+
+# Activer la correction mineure des fautes de frappe dans les commandes
+shopt -s cdspell
+
+# Ignorer les espaces vides et les lignes commençant par un espace dans l'historique
+export HISTCONTROL=ignoreboth
+
+# Recharger automatiquement .bashrc lorsque le fichier est modifié
+function reload_bashrc {
+  if [[ "$BASH_SOURCE" != "" ]]; then
+    . "$BASH_SOURCE"
+  fi
+}
+
+# Recharger automatiquement .bashrc à chaque exécution du shell
+PROMPT_COMMAND='reload_bashrc'
+
+# Activer les globbing étendus
+shopt -s extglob
+
+# Améliorer la navigation dans l'historique avec les flèches
+bind '"\e[A":history-search-backward'
+bind '"\e[B":history-search-forward'
+
+# Pour rendre bash plus silencieux sur certaines opérations
+alias cp="cp -i"  # Demander confirmation avant d'écraser un fichier
+alias mv="mv -i"  # Demander confirmation avant de remplacer un fichier
+alias rm="rm -i"  # Demander confirmation avant de supprimer un fichier
+
+# Afficher l'arborescence d'un répertoire
+alias tree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/ /' -e 's/-/|/'"
+source $HOME/.brewconfig.zsh
+# Source .bash_profile si existe
+if [ -f ~/.bash_profile ]; then
+    source ~/.bash_profile
+fi
+
+
+------geckoformboundarybd0ba4c652250d736ff559e255ba2b0--

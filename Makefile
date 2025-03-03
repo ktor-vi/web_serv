@@ -3,7 +3,7 @@ EXECUTABLE_NAME = webServ.exe
 
 # Compilateur et options
 COMPILATOR = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 # -Ofast -funroll-loops
+FLAGS = -Wall -Wextra -Werror -std=c++98 -funroll-loops
 
 # Répertoires
 SRC_DIR = sources
@@ -13,7 +13,7 @@ OBJ_DIR = OBJ
 SRC_FILES = $(shell find $(SRC_DIR) -name "*.cpp")
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC_FILES))
 
-# Couleurs pour le terminal
+# Couleurs
 GREEN = \033[1;32m
 YELLOW = \033[1;33m
 BLUE = \033[1;34m

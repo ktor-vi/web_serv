@@ -23,10 +23,11 @@ void ft_webserver(WebServer &data)
 	epoll_fd = epoll_create1(0); // Init epoll
 	if (epoll_fd == -1)
 		perror("EPOLL_CREATE ERROR"), exit(1);
-	ft_setup_all_socket(data, epoll_fd, &t_event); // Ajouter les sockets serveurs à epoll
+	ft_setup_all_socket(data, epoll_fd, &t_event);
 	while (1)
 	{
 		fds = epoll_wait(epoll_fd, t_events, MAX_EVENTS, -1); // Attente d'événements
+		printf("fds == %i\n", fds);
 		if (fds == -1)
 			perror("EPOLL_WAIT ERROR");
 		else
@@ -53,100 +54,150 @@ void ft_webserver(WebServer &data)
 						break;
 					}
 				}
-				else if (t_events[i].events & EPOLLIN){// Données à lire
+				else if (t_events[i].events & EPOLLIN)
+				{
 					if (handle_read_event(fd, epoll_fd, data) == -1) // Fonction pour lire les données
-    					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd);} // sort le fd de la pool
-
-				else if (t_events[i].events & EPOLLOUT) // Prêt à écrire
+    					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd);
+				}
+				else if (t_events[i].events & EPOLLOUT)
+				{
 					if (handle_write_event(fd, epoll_fd, data) == -1) // Fonction pour envoyer la réponse
-						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd); // sort le fd de la pool
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd);
+				}
 			}
 		}
 	}
 }
 
+bool is_request_complete(const char *request, size_t request_len)
+{
+    const char *end_of_headers = strstr(request, "\r\n\r\n");
+	uint32_t content_len;
+	uint32_t body_len;
+
+    if (!end_of_headers)
+        return false;
+    const char *content_len_header = strstr(request, "Content-Length: ");
+    if (content_len_header)
+	{
+        content_len = atoi(content_len_header + 16);
+        body_len = request_len - (end_of_headers - request + 4);
+		printf("\n body_len = %d < content_len %d\n\n", body_len, content_len);
+		if (body_len < content_len)
+			return false;
+    }
+    return true;
+}
+
+bool should_close_connection(const std::string &request)
+{
+    size_t 			pos = 0;
+    std::string 	line;
+    bool 			found_connection_header = false;
+
+    while ((pos = request.find("\r\n", pos)) != std::string::npos)
+	{
+        line = request.substr(pos, request.find("\r\n", pos) - pos);
+
+        // Chercher "Connection:" uniquement dans les en-têtes
+        if (line.find("Connection:") == 0) {
+            found_connection_header = true;
+            std::transform(line.begin(), line.end(), line.begin(), ::tolower);  // Comparaison insensible à la casse
+
+            if (line.find("connection: close") != std::string::npos) {
+                return true; // Connexion à fermer si "close" est trouvé
+            }
+            if (line.find("connection: keep-alive") == std::string::npos) {
+                return true; // Connexion à fermer si "keep-alive" n'est pas trouvé
+            }
+            break;  // Pas besoin de continuer à chercher si l'on a trouvé un en-tête Connection
+        }
+        pos = request.find("\r\n", pos) + 2;
+    }
+    if (!found_connection_header)
+        return true;
+    return false;
+}
 
 int handle_read_event(int client_fd, int epoll_fd, WebServer &data)
 {
-	char buffer[4096];
-	size_t bytesRead;
-	std::string request;
+    static std::map<int, std::string> 	save;
+    char 								buffer[4096];
+    int 								bytesRead;
+    struct epoll_event 					t_event;
+    std::string 						request;
 
-	make_socket_nonblocking(client_fd);
-	while (true)
+    make_socket_nonblocking(client_fd);
+
+    while ((bytesRead = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) > 0)
 	{
-		memset(buffer, 0, CHUNK_SIZE);
-		bytesRead = recv(client_fd, buffer, CHUNK_SIZE - 1, 0); // read equivalent
-		if (bytesRead > 0)
-		{
-			request += std::string(buffer, bytesRead);
-			// std::cout << "Chunk received (" << bytesRead << " bytes): " << std::string(buffer, bytesRead) << "\n";
-			if (bytesRead < CHUNK_SIZE - 1)
-				break;
-		}
-		else if (bytesRead == 0)
-			break;
-		else if (bytesRead <= 0)
-		{
-			throw(std::out_of_range("recv"));
-		}
-		// std::cout << "Total data received:\n" << totalData << "\n";
-	}
-	HandleRequests requestHandler(request, data, epoll_fd, client_fd);
-	data.setKeepAlive(requestHandler.getKeepAlive());
-	data.setResponseBuffer(client_fd, requestHandler.getResponse());
-
-	// Passer en mode écriture (EPOLLOUT)
-	struct epoll_event t_event;
-	t_event.events = EPOLLOUT | EPOLLET;
-	t_event.data.fd = client_fd;
-	if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, client_fd, &t_event) == -1)
+        request.append(buffer, bytesRead);
+        if (bytesRead < (int)sizeof(buffer) - 1)
+            break;
+    }
+    if (bytesRead < 0)
+        return -1;
+    save[client_fd] += request;
+    std::cout << "Request size == " << save[client_fd].size() << std::endl;
+    if (!is_request_complete(save[client_fd].c_str(), save[client_fd].size()))
 	{
-		perror("EPOLL_CTL MOD ERROR");
-		return -1;
-	}
+        perror("INCOMPLETE REQUEST");
+        std::cout << "Save size == " << save[client_fd].size() << std::endl;
+        return 0;
+    }
+    HandleRequests requestHandler(save[client_fd], data, epoll_fd, client_fd);
+    data.setResponseBuffer(client_fd, requestHandler.getResponse());
 
-	// On a traité la requête, donc on arrête ici
-	return 0;
+    save.erase(client_fd);
+
+    t_event.events = EPOLLOUT | EPOLLET;
+    t_event.data.fd = client_fd;
+
+	if (!should_close_connection(save[client_fd]))
+		return (-1);
+    return epoll_ctl(epoll_fd, EPOLL_CTL_MOD, client_fd, &t_event) == -1 ? -1 : 0;
 }
 
 int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
 {
+    int					fileFd;
+    std::string			body;
+    static size_t		offset = 0; // Pour suivre l'écriture
+    ssize_t				bytes_written, bytes_sent;
+    const std::string &response = data.getResponseBuffer(client_fd);
 
-	make_socket_nonblocking(client_fd);
-	if (!data.postFileFdAbsent(client_fd))
-	{
-		int fileFd = data.getPostFileFds(client_fd);
-		std::string body = data.getPostBody(client_fd);
-		static size_t offset = 0; // Pour suivre l'écriture
-		ssize_t bytes_written = write(fileFd, body.c_str() + offset, body.size() - offset);
-		if (bytes_written < 0)
-		{
-			perror("Write error");
-			close(fileFd);
-			data.removePostFileFds(client_fd);
-			return -1;
-		}
-		offset += bytes_written;
-		if (offset >= body.size())
-		{
-			close(fileFd);
-			data.removePostFileFds(client_fd);
-			offset = 0;
-		}
-	}
-	if (data.responseBufferAbsent(client_fd))
-		return -1;
-	const std::string &response = data.getResponseBuffer(client_fd);
-	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
-	///std::cout << "Bytes sent: " << bytes_sent << "/" << response.size() << std::endl;
-	if (bytes_sent < 0)
-	{
-		perror("SEND ERROR");
-		return -1;
-	}
-	data.eraseResponseBuffer(client_fd);
-	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-	close(client_fd);
-	return 0;
+    make_socket_nonblocking(client_fd);
+
+    if (!data.postFileFdAbsent(client_fd)) {
+        fileFd = data.getPostFileFds(client_fd);
+        body = data.getPostBody(client_fd);
+        
+        bytes_written = write(fileFd, body.c_str() + offset, body.size() - offset);
+        if (bytes_written < 0) {
+            perror("Write error");
+            close(fileFd);
+            data.removePostFileFds(client_fd);
+            return -1;
+        }
+        offset += bytes_written;
+        if (offset >= body.size()) {
+            close(fileFd);
+            data.removePostFileFds(client_fd);
+            offset = 0;
+        }
+    }
+
+    if (data.responseBufferAbsent(client_fd))
+        return -1;
+
+    bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+    if (bytes_sent < 0) {
+        perror("SEND ERROR");
+        return -1;
+    }
+
+    data.eraseResponseBuffer(client_fd);
+    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+    close(client_fd);
+    return 0;
 }

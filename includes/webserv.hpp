@@ -32,6 +32,7 @@
 #include "../class/WebServer.hpp"
 
 #define CHUNK_SIZE 4096
+#define uint u_int32_t
 
 class WebServer;
 
@@ -43,6 +44,7 @@ void	ft_setup_all_socket(WebServer &data, int epoll_fd, struct epoll_event *ptr)
 void	make_socket_nonblocking(int sockfd); // litteral
 int 	handle_read_event(int client_fd, int epoll_fd, WebServer &data);
 int 	handle_write_event(int client_fd, int epoll_fd, WebServer &data);
+
 // CGI PART
 char *ft_call_cgi(char *ans);
 
