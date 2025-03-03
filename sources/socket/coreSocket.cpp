@@ -27,7 +27,6 @@ void ft_webserver(WebServer &data)
 	while (1)
 	{
 		fds = epoll_wait(epoll_fd, t_events, MAX_EVENTS, -1); // Attente d'événements
-		printf("fds == %i\n", fds);
 		if (fds == -1)
 			perror("EPOLL_WAIT ERROR");
 		else
@@ -72,8 +71,8 @@ void ft_webserver(WebServer &data)
 bool is_request_complete(const char *request, size_t request_len)
 {
     const char *end_of_headers = strstr(request, "\r\n\r\n");
-	uint32_t content_len;
-	uint32_t body_len;
+	uint content_len;
+	uint body_len;
 
     if (!end_of_headers)
         return false;
@@ -82,7 +81,6 @@ bool is_request_complete(const char *request, size_t request_len)
 	{
         content_len = atoi(content_len_header + 16);
         body_len = request_len - (end_of_headers - request + 4);
-		printf("\n body_len = %d < content_len %d\n\n", body_len, content_len);
 		if (body_len < content_len)
 			return false;
     }
@@ -99,18 +97,16 @@ bool should_close_connection(const std::string &request)
 	{
         line = request.substr(pos, request.find("\r\n", pos) - pos);
 
-        // Chercher "Connection:" uniquement dans les en-têtes
         if (line.find("Connection:") == 0) {
             found_connection_header = true;
             std::transform(line.begin(), line.end(), line.begin(), ::tolower);  // Comparaison insensible à la casse
-
             if (line.find("connection: close") != std::string::npos) {
-                return true; // Connexion à fermer si "close" est trouvé
+                return true;
             }
             if (line.find("connection: keep-alive") == std::string::npos) {
-                return true; // Connexion à fermer si "keep-alive" n'est pas trouvé
+                return true;
             }
-            break;  // Pas besoin de continuer à chercher si l'on a trouvé un en-tête Connection
+            break; 
         }
         pos = request.find("\r\n", pos) + 2;
     }
@@ -138,13 +134,8 @@ int handle_read_event(int client_fd, int epoll_fd, WebServer &data)
     if (bytesRead < 0)
         return -1;
     save[client_fd] += request;
-    std::cout << "Request size == " << save[client_fd].size() << std::endl;
     if (!is_request_complete(save[client_fd].c_str(), save[client_fd].size()))
-	{
-        perror("INCOMPLETE REQUEST");
-        std::cout << "Save size == " << save[client_fd].size() << std::endl;
         return 0;
-    }
     HandleRequests requestHandler(save[client_fd], data, epoll_fd, client_fd);
     data.setResponseBuffer(client_fd, requestHandler.getResponse());
 
