@@ -1,5 +1,5 @@
 # Nom de l'exécutable
-EXECUTABLE_NAME = webServ.exe
+EXECUTABLE_NAME = webserv
 
 # Compilateur et options
 COMPILATOR = c++
