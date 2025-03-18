@@ -26,7 +26,7 @@ void ft_webserver(WebServer &data)
 	ft_setup_all_socket(data, epoll_fd, &t_event);
 	while (1)
 	{
-		fds = epoll_wait(epoll_fd, t_events, MAX_EVENTS, -1); // Attente d'événements
+		fds = epoll_wait(epoll_fd, t_events, MAX_EVENTS, -1);
 		if (fds == -1)
 			perror("EPOLL_WAIT ERROR");
 		else
@@ -35,7 +35,7 @@ void ft_webserver(WebServer &data)
 			while (++i < fds)
 			{
 				fd = t_events[i].data.fd;
-				if (ft_isit_fdsocket(data, fd)) // Nouvelle connexion
+				if (ft_isit_fdsocket(data, fd))
 				{
 					client_fd = accept(fd, (struct sockaddr *)&addr_client, &addr_len);
 					if (client_fd < 0)
@@ -44,7 +44,7 @@ void ft_webserver(WebServer &data)
 						break;
 					}
 					make_socket_nonblocking(client_fd);
-					t_event.events = EPOLLIN | EPOLLET; // Prêt à lire
+					t_event.events = EPOLLIN | EPOLLET;
 					t_event.data.fd = client_fd;
 					if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &t_event) == -1)
 					{
@@ -55,12 +55,12 @@ void ft_webserver(WebServer &data)
 				}
 				else if (t_events[i].events & EPOLLIN)
 				{
-					if (handle_read_event(fd, epoll_fd, data) == -1) // Fonction pour lire les données
+					if (handle_read_event(fd, epoll_fd, data) == -1)
     					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd);
 				}
 				else if (t_events[i].events & EPOLLOUT)
 				{
-					if (handle_write_event(fd, epoll_fd, data) == -1) // Fonction pour envoyer la réponse
+					if (handle_write_event(fd, epoll_fd, data) == -1)
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL), close(fd);
 				}
 			}
@@ -97,9 +97,10 @@ bool should_close_connection(const std::string &request)
 	{
         line = request.substr(pos, request.find("\r\n", pos) - pos);
 
-        if (line.find("Connection:") == 0) {
+        if (line.find("Connection:") == 0)
+		{
             found_connection_header = true;
-            std::transform(line.begin(), line.end(), line.begin(), ::tolower);  // Comparaison insensible à la casse
+            std::transform(line.begin(), line.end(), line.begin(), ::tolower);
             if (line.find("connection: close") != std::string::npos) {
                 return true;
             }
@@ -124,26 +125,22 @@ int handle_read_event(int client_fd, int epoll_fd, WebServer &data)
     std::string 						request;
 
     make_socket_nonblocking(client_fd);
-
     while ((bytesRead = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) > 0)
 	{
         request.append(buffer, bytesRead);
         if (bytesRead < (int)sizeof(buffer) - 1)
             break;
     }
-    if (bytesRead < 0)
-        return -1;
+    if (bytesRead < 0){
+        return -1;}
     save[client_fd] += request;
     if (!is_request_complete(save[client_fd].c_str(), save[client_fd].size()))
         return 0;
     HandleRequests requestHandler(save[client_fd], data, epoll_fd, client_fd);
     data.setResponseBuffer(client_fd, requestHandler.getResponse());
-
     save.erase(client_fd);
-
     t_event.events = EPOLLOUT | EPOLLET;
     t_event.data.fd = client_fd;
-
 	if (!should_close_connection(save[client_fd]))
 		return (-1);
     return epoll_ctl(epoll_fd, EPOLL_CTL_MOD, client_fd, &t_event) == -1 ? -1 : 0;
@@ -158,11 +155,10 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
     const std::string &response = data.getResponseBuffer(client_fd);
 
     make_socket_nonblocking(client_fd);
-
-    if (!data.postFileFdAbsent(client_fd)) {
+    if (!data.postFileFdAbsent(client_fd))
+	{
         fileFd = data.getPostFileFds(client_fd);
         body = data.getPostBody(client_fd);
-        
         bytes_written = write(fileFd, body.c_str() + offset, body.size() - offset);
         if (bytes_written < 0) {
             perror("Write error");
@@ -177,16 +173,14 @@ int handle_write_event(int client_fd, int epoll_fd, WebServer &data)
             offset = 0;
         }
     }
-
     if (data.responseBufferAbsent(client_fd))
         return -1;
-
     bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
-    if (bytes_sent < 0) {
+    if (bytes_sent < 0)
+	{
         perror("SEND ERROR");
         return -1;
     }
-
     data.eraseResponseBuffer(client_fd);
     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
     close(client_fd);

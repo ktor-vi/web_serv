@@ -45,7 +45,7 @@ static std::vector<char *>	buildEnv(std::string rootDir, std::string fileName, s
 		envPtrs.push_back(const_cast<char *>(var.c_str()));
 	}
 	envPtrs.push_back(NULL);
-	int	envSize;
+	int	envSize = 0;
 	while (environ[envSize] != NULL)
 		envSize++;
 	for (int i = 0; i < envSize; ++i)
